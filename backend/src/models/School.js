@@ -12,7 +12,21 @@ const schoolSchema = new mongoose.Schema(
     principalMessage: { type: String },
     logoUrl: { type: String },
     bannerUrl: { type: String },
+    welcomeMessage: { type: String, default: '' },
     socialLinks: [{ platform: String, url: String }],
+    academicCalendar: [
+      {
+        title: { type: String, required: true },
+        date: { type: Date, required: true },
+        description: { type: String },
+      },
+    ],
+    // Used to plot the school on OpenStreetMap and generate directions links
+    location: {
+      lat: { type: Number },
+      lng: { type: Number },
+      displayAddress: { type: String }, // human-readable label returned by the geocoder
+    },
     status: {
       type: String,
       enum: ['pending', 'active', 'rejected'],
