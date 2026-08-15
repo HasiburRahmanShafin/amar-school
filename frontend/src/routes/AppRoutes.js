@@ -3,6 +3,9 @@ import Login from '../pages/auth/Login';
 import RegisterSchool from '../pages/auth/RegisterSchool';
 import VerifySchools from '../pages/superadmin/VerifySchools';
 import Dashboard from '../pages/admin/Dashboard';
+import WebsiteBuilder from '../pages/admin/WebsiteBuilder';
+import GalleryManager from '../pages/admin/GalleryManager';
+import SchoolWebsite from '../pages/public/SchoolWebsite';
 import NotFound from '../pages/NotFound';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -11,6 +14,10 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register-school" element={<RegisterSchool />} />
+
+      {/* Public school website - stand-in for subdomain routing during local dev.
+          In production this same page is what schoolname.amarschool.com resolves to. */}
+      <Route path="/school/:subdomain" element={<SchoolWebsite />} />
 
       <Route
         path="/superadmin/schools"
@@ -26,6 +33,24 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['school_admin']}>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/website-builder"
+        element={
+          <ProtectedRoute allowedRoles={['school_admin']}>
+            <WebsiteBuilder />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/gallery"
+        element={
+          <ProtectedRoute allowedRoles={['school_admin']}>
+            <GalleryManager />
           </ProtectedRoute>
         }
       />
