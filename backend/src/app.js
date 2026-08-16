@@ -11,8 +11,7 @@ const noticeRoutes = require('./routes/notice.routes');
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL || '*', credentials: true }));
-// Default express.json() limit is 100kb - too small once logoUrl/bannerUrl
+app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000', credentials: true }));// Default express.json() limit is 100kb - too small once logoUrl/bannerUrl
 // hold base64 image data, so this is raised to comfortably fit a couple
 // of images in one request.
 app.use(express.json({ limit: '10mb' }));
