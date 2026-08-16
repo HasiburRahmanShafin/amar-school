@@ -5,6 +5,7 @@ import VerifySchools from '../pages/superadmin/VerifySchools';
 import Dashboard from '../pages/admin/Dashboard';
 import WebsiteBuilder from '../pages/admin/WebsiteBuilder';
 import GalleryManager from '../pages/admin/GalleryManager';
+import NoticeManager from '../pages/admin/NoticeManager';
 import SchoolWebsite from '../pages/public/SchoolWebsite';
 import NotFound from '../pages/NotFound';
 import ProtectedRoute from './ProtectedRoute';
@@ -51,6 +52,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['school_admin']}>
             <GalleryManager />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/notices"
+        element={
+          <ProtectedRoute allowedRoles={['school_admin']}>
+            <NoticeManager />
           </ProtectedRoute>
         }
       />
