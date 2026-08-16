@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import NoticesFeed from '../../components/NoticesFeed';
 
 function Dashboard() {
   const { user, logoutUser } = useAuth();
@@ -28,10 +29,21 @@ function Dashboard() {
           <h3 className="font-semibold mb-1">Photo Gallery</h3>
           <p className="text-sm text-gray-500">Manage photos of facilities, events, and activities.</p>
         </Link>
+        <Link to="/admin/notices" className="bg-white rounded shadow p-5 hover:shadow-md transition">
+          <h3 className="font-semibold mb-1">Notices & Events</h3>
+          <p className="text-sm text-gray-500">
+            Publish notices, emergency announcements, and events to the website and every dashboard.
+          </p>
+        </Link>
         <div className="bg-white rounded shadow p-5 opacity-50">
           <h3 className="font-semibold mb-1">More Modules</h3>
-          <p className="text-sm text-gray-500">Teacher, Student, Notices, Admissions coming in later modules.</p>
+          <p className="text-sm text-gray-500">Teacher, Student, Admissions coming in later modules.</p>
         </div>
+      </div>
+
+      <h2 className="font-semibold text-gray-600 mb-3 mt-8">Recent Notices</h2>
+      <div className="bg-white rounded shadow p-6">
+        <NoticesFeed />
       </div>
     </div>
   );
