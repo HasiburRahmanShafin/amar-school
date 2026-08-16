@@ -2,20 +2,27 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import * as websiteApi from '../../api/websiteApi';
 import * as galleryApi from '../../api/galleryApi';
+import * as noticeApi from '../../api/noticeApi';
 import LeafletMap from '../../components/LeafletMap';
 
 function SchoolWebsite() {
   const { subdomain } = useParams();
   const [school, setSchool] = useState(null);
   const [gallery, setGallery] = useState([]);
+  const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    Promise.all([websiteApi.getPublicWebsite(subdomain), galleryApi.getPublicGallery(subdomain)])
-      .then(([websiteRes, galleryRes]) => {
+    Promise.all([
+      websiteApi.getPublicWebsite(subdomain),
+      galleryApi.getPublicGallery(subdomain),
+      noticeApi.getPublicNotices(subdomain),
+    ])
+      .then(([websiteRes, galleryRes, noticeRes]) => {
         setSchool(websiteRes.data);
         setGallery(galleryRes.data);
+        setNotices(noticeRes.data);
       })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
@@ -60,6 +67,45 @@ function SchoolWebsite() {
           )}
           <h1 className="text-3xl font-bold">{school.name}</h1>
         </div>
+
+        {/* Notices & Events - shown prominently near the top of the homepage */}
+        {notices.length > 0 && (
+          <section className="bg-white rounded shadow p-6 mt-6">
+            <h2 className="font-semibold mb-4">Notices & Events</h2>
+            <ul className="space-y-3">
+              {notices.map((notice) => (
+                <li
+                  key={notice._id}
+                  className={`border-l-4 pl-4 ${
+                    notice.category === 'emergency' ? 'border-red-500' : 'border-blue-500'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-medium">{notice.title}</p>
+                    <span className="text-xs text-gray-400">
+                      {new Date(notice.startDate).toLocaleDateString('en-GB', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600">{notice.description}</p>
+                  {notice.attachmentUrl && (
+                    <a
+                      href={notice.attachmentUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs text-blue-600 underline"
+                    >
+                      {notice.attachmentName || 'View attachment'}
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {/* Welcome message */}
         {school.welcomeMessage && (
