@@ -7,6 +7,7 @@ const superadminRoutes = require('./routes/superadmin.routes');
 const websiteRoutes = require('./routes/website.routes');
 const galleryRoutes = require('./routes/gallery.routes');
 const uploadRoutes = require('./routes/upload.routes');
+const noticeRoutes = require('./routes/notice.routes');
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api/superadmin', superadminRoutes);
 app.use('/api/website', websiteRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/notices', noticeRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
