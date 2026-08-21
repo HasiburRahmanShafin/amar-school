@@ -35,9 +35,21 @@ function Dashboard() {
             Publish notices, emergency announcements, and events to the website and every dashboard.
           </p>
         </Link>
+        <Link to="/admin/admissions/circulars" className="bg-white rounded shadow p-5 hover:shadow-md transition">
+          <h3 className="font-semibold mb-1">Admission Circulars</h3>
+          <p className="text-sm text-gray-500">Create and manage admission circulars.</p>
+        </Link>
+        <Link to="/admin/admissions/applicants" className="bg-white rounded shadow p-5 hover:shadow-md transition">
+          <h3 className="font-semibold mb-1">Applicants</h3>
+          <p className="text-sm text-gray-500">Review, update status, and publish results.</p>
+        </Link>
+        <Link to="/admin/students" className="bg-white rounded shadow p-5 hover:shadow-md transition">
+          <h3 className="font-semibold mb-1">Students</h3>
+          <p className="text-sm text-gray-500">Manage student profiles, classes, and promotions.</p>
+        </Link>
         <div className="bg-white rounded shadow p-5 opacity-50">
           <h3 className="font-semibold mb-1">More Modules</h3>
-          <p className="text-sm text-gray-500">Teacher, Student, Admissions coming in later modules.</p>
+          <p className="text-sm text-gray-500">Teacher coming in later modules.</p>
         </div>
       </div>
 
