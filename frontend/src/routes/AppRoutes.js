@@ -10,15 +10,24 @@ import SchoolWebsite from '../pages/public/SchoolWebsite';
 import NotFound from '../pages/NotFound';
 import ProtectedRoute from './ProtectedRoute';
 
+import AdmissionList from '../pages/admission/AdmissionList';
+import ApplyForm from '../pages/admission/ApplyForm';
+import Results from '../pages/admission/Results';
+import ManageCirculars from '../pages/admin/ManageCirculars';
+import ManageApplicants from '../pages/admin/ManageApplicants';
+import StudentList from '../pages/admin/StudentList';
+import StudentForm from '../pages/admin/StudentForm';
+import PromoteStudents from '../pages/admin/PromoteStudents';
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register-school" element={<RegisterSchool />} />
-
-      {/* Public school website - stand-in for subdomain routing during local dev.
-          In production this same page is what schoolname.amarschool.com resolves to. */}
       <Route path="/school/:subdomain" element={<SchoolWebsite />} />
+      <Route path="/admin/students" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentList /></ProtectedRoute>} />
+      <Route path="/admin/students/new" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentForm /></ProtectedRoute>} />
+      <Route path="/admin/students/:id/edit" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentForm /></ProtectedRoute>} />
+      <Route path="/admin/students/promote" element={<ProtectedRoute allowedRoles={['school_admin']}><PromoteStudents /></ProtectedRoute>} />
 
       <Route
         path="/superadmin/schools"
@@ -28,7 +37,6 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/admin/dashboard"
         element={
@@ -37,7 +45,6 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/admin/website-builder"
         element={
@@ -46,7 +53,6 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/admin/gallery"
         element={
@@ -55,12 +61,31 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/admin/notices"
         element={
           <ProtectedRoute allowedRoles={['school_admin']}>
             <NoticeManager />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="/admission" element={<AdmissionList />} />
+      <Route path="/admission/apply/:circularId" element={<ApplyForm />} />
+      <Route path="/admission/results/:circularId" element={<Results />} />
+      <Route
+        path="/admin/admissions/circulars"
+        element={
+          <ProtectedRoute allowedRoles={['school_admin']}>
+            <ManageCirculars />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/admissions/applicants"
+        element={
+          <ProtectedRoute allowedRoles={['school_admin']}>
+            <ManageApplicants />
           </ProtectedRoute>
         }
       />
