@@ -20,6 +20,8 @@ import StudentForm from '../pages/admin/StudentForm';
 import PromoteStudents from '../pages/admin/PromoteStudents';
 import TeacherList from '../pages/admin/TeacherList';
 import TeacherForm from '../pages/admin/TeacherForm';
+import TeacherDashboard from '../pages/teacher/TeacherDashboard';
+import MyProfile from '../pages/teacher/MyProfile';
 function AppRoutes() {
   return (
     <Routes>
@@ -34,6 +36,9 @@ function AppRoutes() {
       <Route path="/admin/teachers" element={<ProtectedRoute allowedRoles={['school_admin']}><TeacherList /></ProtectedRoute>} />
       <Route path="/admin/teachers/new" element={<ProtectedRoute allowedRoles={['school_admin']}><TeacherForm /></ProtectedRoute>} />
       <Route path="/admin/teachers/:id/edit" element={<ProtectedRoute allowedRoles={['school_admin']}><TeacherForm /></ProtectedRoute>} />
+
+      <Route path="/teacher/dashboard" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherDashboard /></ProtectedRoute>} />
+      <Route path="/teacher/profile" element={<ProtectedRoute allowedRoles={['teacher']}><MyProfile /></ProtectedRoute>} />
 
       <Route
         path="/superadmin/schools"
