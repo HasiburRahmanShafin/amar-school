@@ -8,6 +8,7 @@ const websiteRoutes = require('./routes/website.routes');
 const galleryRoutes = require('./routes/gallery.routes');
 const uploadRoutes = require('./routes/upload.routes');
 const noticeRoutes = require('./routes/notice.routes');
+const routineRoutes = require('./routes/routine.routes');
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/api/website', websiteRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/notices', noticeRoutes);
+app.use('/api/routines', routineRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
