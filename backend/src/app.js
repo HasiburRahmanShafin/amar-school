@@ -8,6 +8,8 @@ const websiteRoutes = require('./routes/website.routes');
 const galleryRoutes = require('./routes/gallery.routes');
 const uploadRoutes = require('./routes/upload.routes');
 const noticeRoutes = require('./routes/notice.routes');
+const routineRoutes = require('./routes/routine.routes');
+
 const admissionRoutes = require('./routes/admission.routes');
 const studentRoutes = require('./routes/student.routes');
 const teacherRoutes = require('./routes/teacher.routes');
@@ -26,6 +28,8 @@ app.use('/api/website', websiteRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/notices', noticeRoutes);
+app.use('/api/routines', routineRoutes);
+
 app.use('/api/admissions', admissionRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/teachers', teacherRoutes);
