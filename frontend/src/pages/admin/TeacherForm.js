@@ -24,6 +24,9 @@ export default function TeacherForm() {
 
   const [form, setForm] = useState(emptyForm);
   const [assignedClasses, setAssignedClasses] = useState([]);
+  const [userId, setUserId] = useState(null);
+  const [issuedCredentials, setIssuedCredentials] = useState(null);
+  const [accountBusy, setAccountBusy] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
@@ -48,6 +51,7 @@ export default function TeacherForm() {
           status: t.status || 'active',
         });
         setAssignedClasses(t.assignedClasses?.length ? t.assignedClasses : []);
+        setUserId(t.userId || null);
       })
       .catch((err) => showToast?.(err.message || 'Failed to load teacher', 'error'))
       .finally(() => setLoading(false));
@@ -80,6 +84,35 @@ export default function TeacherForm() {
   };
   const addClassRow = () => setAssignedClasses((rows) => [...rows, { ...emptyClassRow }]);
   const removeClassRow = (index) => setAssignedClasses((rows) => rows.filter((_, i) => i !== index));
+
+  const handleCreateAccount = async () => {
+    setAccountBusy(true);
+    try {
+      const res = await teacherApi.post(`/teachers/${id}/account`, {});
+      setUserId(true); // account now exists; exact User id isn't needed client-side
+      setIssuedCredentials(res.data);
+      showToast('Login account created', 'success');
+    } catch (err) {
+      showToast(err.message || 'Failed to create login account', 'error');
+    } finally {
+      setAccountBusy(false);
+    }
+  };
+
+  const handleRevokeAccount = async () => {
+    if (!window.confirm("Revoke this teacher's login access? They will no longer be able to sign in.")) return;
+    setAccountBusy(true);
+    try {
+      await teacherApi.delete(`/teachers/${id}/account`);
+      setUserId(null);
+      setIssuedCredentials(null);
+      showToast('Login access revoked', 'success');
+    } catch (err) {
+      showToast(err.message || 'Failed to revoke login access', 'error');
+    } finally {
+      setAccountBusy(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -284,6 +317,51 @@ export default function TeacherForm() {
                 ))}
               </div>
             </div>
+
+            {isEdit && (
+              <>
+                <hr className={hr} />
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${label}`}>Login access</label>
+
+                  {issuedCredentials && (
+                    <div className={`rounded-lg p-4 mb-3 text-sm ${isDark ? 'bg-green-950 text-green-300' : 'bg-green-50 text-green-800'}`}>
+                      <p className="font-medium mb-1">Share these with the teacher — shown only once:</p>
+                      <p>Email: <span className="font-mono">{issuedCredentials.email}</span></p>
+                      <p>Temporary password: <span className="font-mono">{issuedCredentials.tempPassword}</span></p>
+                    </div>
+                  )}
+
+                  {userId ? (
+                    <div className="flex items-center justify-between">
+                      <p className={`text-sm ${subText}`}>✅ This teacher can log in and edit their own profile.</p>
+                      <button
+                        type="button"
+                        onClick={handleRevokeAccount}
+                        disabled={accountBusy}
+                        className={`text-xs font-medium px-3 py-1.5 rounded-lg disabled:opacity-50 ${isDark ? 'text-red-400 hover:bg-red-950' : 'text-red-600 hover:bg-red-50'}`}
+                      >
+                        Revoke access
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <p className={`text-sm ${subText}`}>No login account yet.</p>
+                      <button
+                        type="button"
+                        onClick={handleCreateAccount}
+                        disabled={accountBusy}
+                        className={`text-xs font-medium px-3 py-1.5 rounded-lg border disabled:opacity-50 ${
+                          isDark ? 'border-gray-600 text-gray-200 hover:bg-gray-800' : 'border-blue-300 text-blue-700 hover:bg-blue-50'
+                        }`}
+                      >
+                        {accountBusy ? 'Creating…' : 'Create login'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
 
             <button
               type="submit"
