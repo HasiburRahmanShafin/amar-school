@@ -61,6 +61,27 @@ function Dashboard() {
             <RoutineFeed />
           </div>
         </div>
+        <Link to="/admin/admissions/circulars" className="bg-white rounded shadow p-5 hover:shadow-md transition">
+          <h3 className="font-semibold mb-1">Admission Circulars</h3>
+          <p className="text-sm text-gray-500">Create and manage admission circulars.</p>
+        </Link>
+        <Link to="/admin/admissions/applicants" className="bg-white rounded shadow p-5 hover:shadow-md transition">
+          <h3 className="font-semibold mb-1">Applicants</h3>
+          <p className="text-sm text-gray-500">Review, update status, and publish results.</p>
+        </Link>
+        <Link to="/admin/students" className="bg-white rounded shadow p-5 hover:shadow-md transition">
+          <h3 className="font-semibold mb-1">Students</h3>
+          <p className="text-sm text-gray-500">Manage student profiles, classes, and promotions.</p>
+        </Link>
+        <Link to="/admin/teachers" className="bg-white rounded shadow p-5 hover:shadow-md transition">
+          <h3 className="font-semibold mb-1">Teachers</h3>
+          <p className="text-sm text-gray-500">Manage teacher profiles, subjects, and class schedules.</p>
+        </Link>
+      </div>
+
+      <h2 className="font-semibold text-gray-600 mb-3 mt-8">Recent Notices</h2>
+      <div className="bg-white rounded shadow p-6">
+        <NoticesFeed />
       </div>
     </div>
   );
