@@ -46,11 +46,6 @@ function SchoolWebsite() {
           const first = routineRes.data.classes[0];
           setSelectedClass(`${first.className}||${first.section}`);
         }
-    ])
-      .then(([websiteRes, galleryRes, noticeRes]) => {
-        setSchool(websiteRes.data);
-        setGallery(galleryRes.data);
-        setNotices(noticeRes.data);
       })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));

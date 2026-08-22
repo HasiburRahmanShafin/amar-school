@@ -20,8 +20,6 @@ function Login() {
         navigate('/superadmin/schools');
       } else if (user.role === 'school_admin') {
         navigate('/admin/dashboard');
-      } else if (user.role === 'teacher') {
-        navigate('/teacher/dashboard');
       } else {
         navigate('/');
       }
