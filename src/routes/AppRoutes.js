@@ -6,7 +6,6 @@ import Dashboard from '../pages/admin/Dashboard';
 import WebsiteBuilder from '../pages/admin/WebsiteBuilder';
 import GalleryManager from '../pages/admin/GalleryManager';
 import NoticeManager from '../pages/admin/NoticeManager';
-import RoutineManager from '../pages/admin/RoutineManager';
 import SchoolWebsite from '../pages/public/SchoolWebsite';
 import NotFound from '../pages/NotFound';
 import ProtectedRoute from './ProtectedRoute';
@@ -23,6 +22,9 @@ import TeacherList from '../pages/admin/TeacherList';
 import TeacherForm from '../pages/admin/TeacherForm';
 import TeacherDashboard from '../pages/teacher/TeacherDashboard';
 import MyProfile from '../pages/teacher/MyProfile';
+import StudentProfile from '../pages/admin/StudentProfile';
+import StudentIdCard from '../pages/admin/StudentIdCard';
+import ChildProfile from '../pages/parent/ChildProfile';
 function AppRoutes() {
   return (
     <Routes>
@@ -40,7 +42,9 @@ function AppRoutes() {
 
       <Route path="/teacher/dashboard" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherDashboard /></ProtectedRoute>} />
       <Route path="/teacher/profile" element={<ProtectedRoute allowedRoles={['teacher']}><MyProfile /></ProtectedRoute>} />
-
+      <Route path="/admin/students/:id" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentProfile /></ProtectedRoute>} />
+      <Route path="/admin/students/:id/id-card" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentIdCard /></ProtectedRoute>} />
+      <Route path="/parent/child-profile" element={<ProtectedRoute allowedRoles={['parent']}><ChildProfile /></ProtectedRoute>} />
       <Route
         path="/superadmin/schools"
         element={
@@ -98,24 +102,6 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['school_admin']}>
             <ManageApplicants />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/admin/notices"
-        element={
-          <ProtectedRoute allowedRoles={['school_admin']}>
-            <NoticeManager />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/admin/routines"
-        element={
-          <ProtectedRoute allowedRoles={['school_admin']}>
-            <RoutineManager />
           </ProtectedRoute>
         }
       />

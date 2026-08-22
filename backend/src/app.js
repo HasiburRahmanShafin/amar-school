@@ -10,12 +10,12 @@ const uploadRoutes = require('./routes/upload.routes');
 const noticeRoutes = require('./routes/notice.routes');
 const routineRoutes = require('./routes/routine.routes');
 
+const admissionRoutes = require('./routes/admission.routes');
+const studentRoutes = require('./routes/student.routes');
+const teacherRoutes = require('./routes/teacher.routes');
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL || '*', credentials: true }));
-// Default express.json() limit is 100kb - too small once logoUrl/bannerUrl
-// hold base64 image data, so this is raised to comfortably fit a couple
-// of images in one request.
+app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000', credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 
 app.get('/api/health', (req, res) => {
@@ -30,6 +30,9 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/notices', noticeRoutes);
 app.use('/api/routines', routineRoutes);
 
+app.use('/api/admissions', admissionRoutes);
+app.use('/api/students', studentRoutes);
+app.use('/api/teachers', teacherRoutes);
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
