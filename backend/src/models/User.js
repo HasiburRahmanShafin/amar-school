@@ -12,6 +12,11 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     school: { type: mongoose.Schema.Types.ObjectId, ref: 'School', default: null },
+    // Only meaningful for role: 'student' - which class/section they belong
+    // to. Used by Financial Reports to group fee collection and dues by
+    // class (see financial.controller.js).
+    className: { type: String, trim: true, default: null },
+    section: { type: String, trim: true, default: null },
     status: {
       type: String,
       enum: ['pending', 'active', 'suspended'],
