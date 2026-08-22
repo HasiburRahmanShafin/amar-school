@@ -47,10 +47,10 @@ function Dashboard() {
           <h3 className="font-semibold mb-1">Students</h3>
           <p className="text-sm text-gray-500">Manage student profiles, classes, and promotions.</p>
         </Link>
-        <div className="bg-white rounded shadow p-5 opacity-50">
-          <h3 className="font-semibold mb-1">More Modules</h3>
-          <p className="text-sm text-gray-500">Teacher coming in later modules.</p>
-        </div>
+        <Link to="/admin/teachers" className="bg-white rounded shadow p-5 hover:shadow-md transition">
+          <h3 className="font-semibold mb-1">Teachers</h3>
+          <p className="text-sm text-gray-500">Manage teacher profiles, subjects, and class schedules.</p>
+        </Link>
       </div>
 
       <h2 className="font-semibold text-gray-600 mb-3 mt-8">Recent Notices</h2>
