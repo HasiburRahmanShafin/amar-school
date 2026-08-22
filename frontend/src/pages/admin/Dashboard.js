@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import NoticesFeed from '../../components/NoticesFeed';
+import RoutineFeed from '../../components/RoutineFeed';
 
 function Dashboard() {
   const { user, logoutUser } = useAuth();
@@ -35,6 +36,31 @@ function Dashboard() {
             Publish notices, emergency announcements, and events to the website and every dashboard.
           </p>
         </Link>
+        <Link to="/admin/routines" className="bg-white rounded shadow p-5 hover:shadow-md transition">
+          <h3 className="font-semibold mb-1">Class Routine</h3>
+          <p className="text-sm text-gray-500">
+            Publish weekly and special-day class routines to the website and every dashboard.
+          </p>
+        </Link>
+        <div className="bg-white rounded shadow p-5 opacity-50">
+          <h3 className="font-semibold mb-1">More Modules</h3>
+          <p className="text-sm text-gray-500">Teacher, Student, Admissions coming in later modules.</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <div>
+          <h2 className="font-semibold text-gray-600 mb-3">Recent Notices</h2>
+          <div className="bg-white rounded shadow p-6">
+            <NoticesFeed />
+          </div>
+        </div>
+        <div>
+          <h2 className="font-semibold text-gray-600 mb-3">Today's Class Routine</h2>
+          <div className="bg-white rounded shadow p-6">
+            <RoutineFeed />
+          </div>
+        </div>
         <Link to="/admin/admissions/circulars" className="bg-white rounded shadow p-5 hover:shadow-md transition">
           <h3 className="font-semibold mb-1">Admission Circulars</h3>
           <p className="text-sm text-gray-500">Create and manage admission circulars.</p>
