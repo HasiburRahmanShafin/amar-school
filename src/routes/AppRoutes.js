@@ -15,14 +15,36 @@ import ApplyForm from '../pages/admission/ApplyForm';
 import Results from '../pages/admission/Results';
 import ManageCirculars from '../pages/admin/ManageCirculars';
 import ManageApplicants from '../pages/admin/ManageApplicants';
-
+import StudentList from '../pages/admin/StudentList';
+import StudentForm from '../pages/admin/StudentForm';
+import PromoteStudents from '../pages/admin/PromoteStudents';
+import TeacherList from '../pages/admin/TeacherList';
+import TeacherForm from '../pages/admin/TeacherForm';
+import TeacherDashboard from '../pages/teacher/TeacherDashboard';
+import MyProfile from '../pages/teacher/MyProfile';
+import StudentProfile from '../pages/admin/StudentProfile';
+import StudentIdCard from '../pages/admin/StudentIdCard';
+import ChildProfile from '../pages/parent/ChildProfile';
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register-school" element={<RegisterSchool />} />
       <Route path="/school/:subdomain" element={<SchoolWebsite />} />
+      <Route path="/admin/students" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentList /></ProtectedRoute>} />
+      <Route path="/admin/students/new" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentForm /></ProtectedRoute>} />
+      <Route path="/admin/students/:id/edit" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentForm /></ProtectedRoute>} />
+      <Route path="/admin/students/promote" element={<ProtectedRoute allowedRoles={['school_admin']}><PromoteStudents /></ProtectedRoute>} />
 
+      <Route path="/admin/teachers" element={<ProtectedRoute allowedRoles={['school_admin']}><TeacherList /></ProtectedRoute>} />
+      <Route path="/admin/teachers/new" element={<ProtectedRoute allowedRoles={['school_admin']}><TeacherForm /></ProtectedRoute>} />
+      <Route path="/admin/teachers/:id/edit" element={<ProtectedRoute allowedRoles={['school_admin']}><TeacherForm /></ProtectedRoute>} />
+
+      <Route path="/teacher/dashboard" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherDashboard /></ProtectedRoute>} />
+      <Route path="/teacher/profile" element={<ProtectedRoute allowedRoles={['teacher']}><MyProfile /></ProtectedRoute>} />
+      <Route path="/admin/students/:id" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentProfile /></ProtectedRoute>} />
+      <Route path="/admin/students/:id/id-card" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentIdCard /></ProtectedRoute>} />
+      <Route path="/parent/child-profile" element={<ProtectedRoute allowedRoles={['parent']}><ChildProfile /></ProtectedRoute>} />
       <Route
         path="/superadmin/schools"
         element={
