@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const protect = require('../middleware/auth.middleware');
-const circularCtrl = require('../controllers/admissionCircular.controller');
-const applicantCtrl = require('../controllers/applicant.controller');
+const circularCtrl = require('../controllers/AdmissionCircular.controller');
+const applicantCtrl = require('../controllers/application.controller');
 
 const authorize = (...roles) => (req, res, next) => {
   if (!req.user || !roles.includes(req.user.role)) {
