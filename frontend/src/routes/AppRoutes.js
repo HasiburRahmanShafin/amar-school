@@ -18,6 +18,8 @@ import ManageApplicants from '../pages/admin/ManageApplicants';
 import StudentList from '../pages/admin/StudentList';
 import StudentForm from '../pages/admin/StudentForm';
 import PromoteStudents from '../pages/admin/PromoteStudents';
+import TeacherList from '../pages/admin/TeacherList';
+import TeacherForm from '../pages/admin/TeacherForm';
 function AppRoutes() {
   return (
     <Routes>
@@ -28,6 +30,10 @@ function AppRoutes() {
       <Route path="/admin/students/new" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentForm /></ProtectedRoute>} />
       <Route path="/admin/students/:id/edit" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentForm /></ProtectedRoute>} />
       <Route path="/admin/students/promote" element={<ProtectedRoute allowedRoles={['school_admin']}><PromoteStudents /></ProtectedRoute>} />
+
+      <Route path="/admin/teachers" element={<ProtectedRoute allowedRoles={['school_admin']}><TeacherList /></ProtectedRoute>} />
+      <Route path="/admin/teachers/new" element={<ProtectedRoute allowedRoles={['school_admin']}><TeacherForm /></ProtectedRoute>} />
+      <Route path="/admin/teachers/:id/edit" element={<ProtectedRoute allowedRoles={['school_admin']}><TeacherForm /></ProtectedRoute>} />
 
       <Route
         path="/superadmin/schools"
