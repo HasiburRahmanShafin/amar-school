@@ -127,6 +127,16 @@ export default function TeacherList() {
                   </div>
                 </Link>
                 <div className="flex items-center gap-3 flex-shrink-0">
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      t.userId
+                        ? isDark ? 'bg-blue-950 text-blue-300' : 'bg-blue-50 text-blue-600'
+                        : isDark ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-500'
+                    }`}
+                    title={t.userId ? 'Has login access' : 'No login account yet'}
+                  >
+                    {t.userId ? '🔑 Login' : 'No login'}
+                  </span>
                   <span className={`text-xs px-3 py-1 rounded-full capitalize ${statusColors[t.status] || statusColors.active}`}>
                     {t.status?.replace('_', ' ')}
                   </span>
