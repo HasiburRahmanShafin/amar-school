@@ -1,10 +1,238 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ─────────────────────────────────────────
+   CSS Custom Properties — Design Tokens
+───────────────────────────────────────── */
+:root {
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 68px;
+  --header-height: 64px;
+  --transition-base: 0.2s ease;
+  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --radius-card: 12px;
+  --radius-btn: 8px;
+  --shadow-card: 0 1px 3px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.06);
+  --shadow-elevated: 0 4px 24px rgba(79,70,229,.12);
+}
+
+/* ─────────────────────────────────────────
+   Base Resets
+───────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background-color: #F8FAFF;
+  color: #1e293b;
+  transition: background-color var(--transition-smooth), color var(--transition-smooth);
+}
+
+body.dark {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+/* ─────────────────────────────────────────
+   Scrollbar Styling
+───────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #c7d2fe;
+  border-radius: 99px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+/* ─────────────────────────────────────────
+   Toast Animation
+───────────────────────────────────────── */
 @keyframes slide-in {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from { transform: translateX(110%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
 }
 .animate-slide-in {
-  animation: slide-in 0.3s ease-out;
+  animation: slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─────────────────────────────────────────
+   Fade-in for page sections
+───────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fade-up 0.35s ease both;
+}
+
+/* ─────────────────────────────────────────
+   Sidebar transition
+───────────────────────────────────────── */
+@keyframes sidebar-in {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.sidebar-label {
+  animation: sidebar-in 0.2s ease both;
+}
+
+/* ─────────────────────────────────────────
+   Auth page gradient background
+───────────────────────────────────────── */
+.auth-gradient {
+  background: linear-gradient(135deg, #4338ca 0%, #6d28d9 50%, #4f46e5 100%);
+}
+
+/* ─────────────────────────────────────────
+   Glassmorphism card
+───────────────────────────────────────── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px rgba(79, 70, 229, 0.12);
+}
+
+/* ─────────────────────────────────────────
+   Gradient text utility
+───────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─────────────────────────────────────────
+   Stat card hover lift
+───────────────────────────────────────── */
+.stat-card {
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-elevated);
+}
+
+/* ─────────────────────────────────────────
+   Sidebar active indicator
+───────────────────────────────────────── */
+.sidebar-item-active {
+  position: relative;
+}
+.sidebar-item-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 20%;
+  bottom: 20%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: #4f46e5;
+}
+
+/* ─────────────────────────────────────────
+   Skeleton loader
+───────────────────────────────────────── */
+@keyframes shimmer {
+  from { background-position: -600px 0; }
+  to   { background-position: 600px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #f0f4ff 25%, #e8eeff 50%, #f0f4ff 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.6s infinite linear;
+  border-radius: 8px;
+}
+.dark .skeleton {
+  background: linear-gradient(90deg, #1e293b 25%, #263248 50%, #1e293b 75%);
+  background-size: 600px 100%;
+}
+
+/* ─────────────────────────────────────────
+   Form input focus glow
+───────────────────────────────────────── */
+.input-field {
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+.input-field:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+.dark .input-field:focus {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+/* ─────────────────────────────────────────
+   Primary button
+───────────────────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, #4f46e5, #6d28d9);
+  color: white;
+  font-weight: 600;
+  border-radius: var(--radius-btn);
+  transition: opacity var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+}
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);
+}
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ─────────────────────────────────────────
+   Module card (dashboard)
+───────────────────────────────────────── */
+.module-card {
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  border-radius: var(--radius-card);
+}
+.module-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.1);
+}
+
+/* ─────────────────────────────────────────
+   Badge colors
+───────────────────────────────────────── */
+.badge-active   { background: #dcfce7; color: #166534; }
+.badge-pending  { background: #fef3c7; color: #92400e; }
+.badge-rejected { background: #fee2e2; color: #991b1b; }
+.badge-inactive { background: #f1f5f9; color: #475569; }
+.dark .badge-active   { background: #14532d; color: #86efac; }
+.dark .badge-pending  { background: #451a03; color: #fcd34d; }
+.dark .badge-rejected { background: #450a0a; color: #fca5a5; }
+.dark .badge-inactive { background: #1e293b; color: #94a3b8; }
+
+/* ─────────────────────────────────────────
+   Public website hero overlay
+───────────────────────────────────────── */
+.hero-overlay {
+  background: linear-gradient(to bottom, rgba(15,23,42,0.3) 0%, rgba(15,23,42,0.7) 100%);
 }

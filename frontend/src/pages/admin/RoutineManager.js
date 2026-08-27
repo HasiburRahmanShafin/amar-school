@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as routineApi from '../../api/routineApi';
+import AdminLayout from '../../components/layout/AdminLayout';
 
 export const DAY_OPTIONS = [
   { value: 'saturday', label: 'Saturday' },
@@ -151,7 +152,7 @@ function RoutineManager() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <AdminLayout>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Class Routine Management</h1>
         <Link to="/admin/dashboard" className="text-sm text-blue-600">
@@ -434,7 +435,7 @@ function RoutineManager() {
           })}
         </div>
       )}
-    </div>
+    </AdminLayout>
   );
 }
 
