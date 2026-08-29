@@ -6,6 +6,8 @@ const ClassRoutine = require('../models/ClassRoutine');
 const FeePayment = require('../models/FeePayment');
 const Assignment = require('../models/Assignment');
 const StudyMaterial = require('../models/StudyMaterial');
+const User = require('../models/User');
+const { sendEmail } = require('../services/email.service');
 
 // helper: resolves which student this request is about (parent -> their child, student -> self)
 async function resolveStudent(req) {
@@ -134,6 +136,43 @@ exports.payFee = async (req, res) => {
       { new: true }
     );
     if (!fee) return res.status(404).json({ success: false, message: 'Fee record not found' });
+
+    // Receipt to the parent + a payment-confirmation alert to the school's
+    // admins. Best-effort: a failed send never blocks the response.
+    const student = await Student.findById(fee.studentId);
+    if (student) {
+      const receiptRecipient = student.guardianEmail;
+      if (receiptRecipient) {
+        await sendEmail({
+          to: receiptRecipient,
+          subject: `Payment received - ${fee.feeType}`,
+          html: `<p>Hi ${student.guardianName},</p>` +
+            `<p>We've received payment of <strong>${fee.amount}</strong> for <strong>${fee.feeType}</strong> ` +
+            `on behalf of <strong>${student.name}</strong> (${student.currentClass}${student.section ? ` - ${student.section}` : ''}).</p>` +
+            `<p><strong>Due date:</strong> ${new Date(fee.dueDate).toLocaleDateString()}<br/>` +
+            `<strong>Paid on:</strong> ${new Date(fee.paidDate).toLocaleDateString()}</p>` +
+            `<p>This email serves as your receipt. Please keep it for your records.</p>`,
+          category: 'fee_receipt',
+          school: student.schoolId,
+        });
+      }
+
+      const admins = await User.find({ school: student.schoolId, role: 'school_admin', status: 'active' }).select('email name');
+      await Promise.all(
+        admins.map((admin) =>
+          sendEmail({
+            to: admin.email,
+            subject: `Payment confirmed: ${student.name} - ${fee.feeType}`,
+            html: `<p>Hi ${admin.name},</p>` +
+              `<p>A payment of <strong>${fee.amount}</strong> for <strong>${fee.feeType}</strong> from ` +
+              `<strong>${student.name}</strong>'s guardian has been recorded.</p>`,
+            category: 'fee_payment_admin_alert',
+            school: student.schoolId,
+          })
+        )
+      );
+    }
+
     res.json({ success: true, data: fee });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });

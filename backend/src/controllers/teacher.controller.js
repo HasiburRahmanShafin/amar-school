@@ -166,6 +166,8 @@ exports.createTeacherAccount = async (req, res) => {
         <p><b>Email:</b> ${teacher.email}<br/><b>Temporary password:</b> ${tempPassword}</p>
         <p>Please log in and change your password from your profile page as soon as possible.</p>
       `,
+      category: 'teacher_account_created',
+      school: teacher.schoolId,
     });
 
     res.status(201).json({
