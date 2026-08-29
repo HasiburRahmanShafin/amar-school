@@ -23,12 +23,18 @@ import TeacherList from '../pages/admin/TeacherList';
 import TeacherForm from '../pages/admin/TeacherForm';
 import TeacherDashboard from '../pages/teacher/TeacherDashboard';
 import MyProfile from '../pages/teacher/MyProfile';
+import ExamManager from '../pages/admin/ExamManager';
+import StudentExamRoutine from '../pages/student/StudentExamRoutine';
+
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register-school" element={<RegisterSchool />} />
       <Route path="/school/:subdomain" element={<SchoolWebsite />} />
+      <Route path="/student/exam-routine" element={<ProtectedRoute allowedRoles={['student', 'school_admin', 'teacher', 'parent']}><StudentExamRoutine /></ProtectedRoute>} />
+      <Route path="/student/profile" element={<ProtectedRoute allowedRoles={['student', 'school_admin', 'teacher', 'parent']}><StudentExamRoutine /></ProtectedRoute>} />
+      <Route path="/admin/exams" element={<ProtectedRoute allowedRoles={['school_admin']}><ExamManager /></ProtectedRoute>} />
       <Route path="/admin/students" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentList /></ProtectedRoute>} />
       <Route path="/admin/students/new" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentForm /></ProtectedRoute>} />
       <Route path="/admin/students/:id/edit" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentForm /></ProtectedRoute>} />
