@@ -4,26 +4,62 @@ Repo structure:
 
 ```
 amar-school/
-├── backend/       Express + MongoDB API
-├── frontend/      React + Tailwind app
+├── backend/                     Express + MongoDB API
+├── frontend/                    React + Tailwind app (the shared platform - auth, dashboard, all features)
+├── frontend-nextjs-admissions/  Fahmida's admission work (Next.js/TS) - NOT wired into the main app yet, see note below
 └── README.md
 ```
 
-MongoDB Atlas and the GitHub repo are already set up. This guide is just for
+MongoDB Atlas and the GitHub repo are already set up. This guide is for
 getting your own machine running and contributing your feature.
+
+---
+
+## ⚠️ Read this before creating any new file or folder
+
+On **Aug 15**, a folder named `Frontend` (capital F) got created alongside
+the existing `frontend`. On Mac/Windows this silently merges into ONE folder
+on disk (those filesystems are case-insensitive, GitHub is not), which
+corrupted checkouts for anyone who pulled it. It's fixed now, but the fix was
+a rename, not a delete — `frontend-nextjs-admissions/` is that recovered work.
+
+**The rule going forward:** never name a new file or folder something that
+differs from an existing one _only_ by capitalization. If you're not sure,
+ask in the group chat before pushing a new top-level folder.
+
+---
+
+## Current Status
+
+| Module     | Feature                                                                                                   | Owner   | Status                                                                                                                                                                                                                               |
+| ---------- | --------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Foundation | Auth, roles, School registration + Super Admin approval                                                   | Shafin  | ✅ Done                                                                                                                                                                                                                              |
+| Module 1   | School Website Builder                                                                                    | Shafin  | ✅ Done                                                                                                                                                                                                                              |
+| Module 2   | Teacher Management                                                                                        | Shafin  | ✅ Done                                                                                                                                                                                                                              |
+| Module 1   | School Profile Management                                                                                 | Annama  | ✅ Done                                                                                                                                                                                                                       |
+| Module 1   | Notice & Event Management                                                                                 | Tanvir  | ✅ Done                                                                                                                                                                                                                              |
+| Module 1   | Admission Management                                                                                      | Mahima  | ✅ Done                                                                                                                                                                                                                              |
+| Module 2   | Student Management                                                                                        | Mahima  | ✅ Done
+                                                                                                                                               |
+| Module 3   | Student and Analytical Dashboard                                                                                        | Mahima  | ✅ Done
+
+
+
+ 
 
 ---
 
 ## 1. Clone the Repo
 
 ```bash
-git git clone https://github.com/HasiburRahmanShafin/amar-school.git
+git clone https://github.com/HasiburRahmanShafin/amar-school.git
 cd amar-school
 ```
 
 ## 2. Get the Shared Environment Variables
 
-I'll share the env values on dm
+Ask the team lead for these (sent privately — never post them in the group
+chat history or commit them):
 
 - `MONGO_URI`
 - `JWT_SECRET`
@@ -31,8 +67,8 @@ I'll share the env values on dm
 - `SUPERADMIN_EMAIL` / `SUPERADMIN_PASSWORD`
 
 Everyone uses the **same** `MONGO_URI` — we're all working against one shared
-Atlas database so admissions, students, attendance etc. stay consistent across
-the team. Don't create your own separate cluster.
+Atlas database so admissions, students, attendance etc. stay consistent
+across the team. Don't create your own separate cluster.
 
 Then create your local env files:
 
@@ -67,7 +103,9 @@ npm install
 npm start
 ```
 
-Opens `http://localhost:3000`.
+Opens `http://localhost:3000`. (`npm install` will pull in `multer` and
+`leaflet` automatically now that they're in `package.json` — nothing extra
+to set up for those.)
 
 You do **not** need to run `npm run seed:superadmin` — the Super Admin account
 already exists in the shared database. Ask the team lead for its login if you
@@ -95,14 +133,14 @@ git pull
 
 # Create your feature branch
 git checkout -b feature/<yourname>-<feature-slug>
-# e.g. feature/shafin-website-builder
+# e.g. feature/annama-profile-management
 
 # Work, commit in small meaningful chunks (not one giant commit at the end)
 git add .
-git commit -m "feat: add school website builder homepage editor"
+git commit -m "feat: add school profile edit form"
 
 # Push your branch
-git push -u origin feature/shafin-website-builder
+git push -u origin feature/<yourname>-<feature-slug>
 ```
 
 Then open a **Pull Request** on GitHub (`base: main` ← `compare: your branch`),
@@ -111,7 +149,7 @@ get it reviewed if possible, and merge. Afterward:
 ```bash
 git checkout main
 git pull
-git branch -d feature/shafin-website-builder
+git branch -d feature/<yourname>-<feature-slug>
 ```
 
 **Branch naming:** `feature/<name>-<short-feature-name>`
@@ -124,6 +162,9 @@ git branch -d feature/shafin-website-builder
   individual contribution gets checked.
 - Pull `main` before you branch, to avoid painful merge conflicts later.
 - Small, frequent commits > one huge commit at the end.
+- Never create a top-level file/folder without checking it doesn't collide
+  (case-insensitively) with something that already exists — see the warning
+  at the top of this file.
 
 ---
 
@@ -143,6 +184,14 @@ Protect and scope every route the same way the existing ones do:
 router.use(protect, authorize("school_admin")); // or 'teacher' / 'student'
 // inside the controller, filter your Mongoose queries by req.user.schoolId
 ```
+
+**Want a worked example?** The Website Builder (`backend/src/controllers/website.controller.js`
+
+- `gallery.controller.js`, `frontend/src/pages/admin/WebsiteBuilder.js` +
+  `GalleryManager.js`) is the most complete reference in the repo right now —
+  public vs. protected routes, tenant scoping, an external API integration
+  (OpenStreetMap), and image handling are all in there. Worth a skim before
+  starting your own feature.
 
 Existing pieces you'll be building on top of:
 

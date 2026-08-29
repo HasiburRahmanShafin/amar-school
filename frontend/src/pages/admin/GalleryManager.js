@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as galleryApi from '../../api/galleryApi';
 import { uploadImage } from '../../api/uploadApi';
+import AdminLayout from '../../components/layout/AdminLayout';
 
 const CATEGORIES = ['facilities', 'events', 'activities'];
 
@@ -61,8 +62,7 @@ function GalleryManager() {
   const visibleImages = filter === 'all' ? images : images.filter((img) => img.category === filter);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-5xl mx-auto">
+    <AdminLayout>
         <Link to="/admin/website-builder" className="text-sm text-blue-600">&larr; Back to Website Builder</Link>
         <h1 className="text-2xl font-bold mt-1 mb-6">Photo Gallery</h1>
 
@@ -149,8 +149,7 @@ function GalleryManager() {
             ))}
           </div>
         )}
-      </div>
-    </div>
+    </AdminLayout>
   );
 }
 
