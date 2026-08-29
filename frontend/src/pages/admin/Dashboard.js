@@ -6,6 +6,7 @@ import NoticesFeed from '../../components/NoticesFeed';
 import RoutineFeed from '../../components/RoutineFeed';
 import { api } from '../../api/StudentApi';
 import { teacherApi } from '../../api/TeacherApi';
+import { getFinancialSummary } from '../../api/financialApi';
 
 /* ── Stat Card ─────────────────────────────────── */
 function StatCard({ label, value, icon, color, to }) {
@@ -50,10 +51,15 @@ export default function Dashboard() {
   const { user, isDark } = useAuth();
   const [studentCount, setStudentCount] = useState(null);
   const [teacherCount, setTeacherCount] = useState(null);
+  const [totalCollection, setTotalCollection] = useState(null);
   
   useEffect(() => {
     api.get('/students').then((r) => setStudentCount(r.data.length)).catch(() => {});
     teacherApi.get('/teachers').then((r) => setTeacherCount(r.data.length)).catch(() => {});
+    getFinancialSummary().then((r) => {
+      const n = r.data?.totalCollection;
+      setTotalCollection(n != null ? `BDT ${Number(n).toLocaleString()}` : '—');
+    }).catch(() => {});
   }, []);
 
   const heading = isDark ? 'text-white' : 'text-slate-800';
@@ -88,7 +94,7 @@ export default function Dashboard() {
         <StatCard label="Total Students" value={studentCount} icon="🎓" color="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600" to="/admin/students" />
         <StatCard label="Total Teachers" value={teacherCount} icon="👨‍🏫" color="bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600" to="/admin/teachers" />
         <StatCard label="Exam Schedules" value="Active" icon="📝" color="bg-purple-100 dark:bg-purple-900/40 text-purple-600" to="/admin/exams" />
-        <StatCard label="Notices" value={null} icon="📢" color="bg-amber-100 dark:bg-amber-900/40 text-amber-600" to="/admin/notices" />
+        <StatCard label="Fee Collection" value={totalCollection} icon="💰" color="bg-green-100 dark:bg-green-900/40 text-green-700" to="/admin/financial-reports" />
       </div>
 
       {/* Quick modules */}
@@ -104,6 +110,7 @@ export default function Dashboard() {
           <ModuleCard to="/admin/analytics" icon="📊" title="Analytics" desc="School performance charts & trends" accent="bg-cyan-100 dark:bg-cyan-900/40 text-cyan-600" />
           <ModuleCard to="/admin/parent-accounts" icon="👪" title="Parent Accounts" desc="Create parent/student logins" accent="bg-rose-100 dark:bg-rose-900/40 text-rose-600" />
           <ModuleCard to="/admin/attendance" icon="✅" title="Attendance" desc="Mark daily class attendance" accent="bg-lime-100 dark:bg-lime-900/40 text-lime-600" />
+          <ModuleCard to="/admin/financial-reports" icon="💰" title="Financial Reports" desc="Fee collection, dues & revenue trends" accent="bg-green-100 dark:bg-green-900/40 text-green-700" />
         </div>
       </div>
 

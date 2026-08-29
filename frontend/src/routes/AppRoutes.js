@@ -35,6 +35,7 @@ import AttendanceCollection from '../pages/admin/AttendanceCollection';
 import MarkEntrySheet from '../pages/teacher/MarkEntrySheet';
 import ResultManager from '../pages/admin/ResultManager';
 import StudentResults from '../pages/student/StudentResults';
+import FinancialReports from '../pages/admin/FinancialReports';
 
 function AppRoutes() {
   return (
@@ -50,6 +51,7 @@ function AppRoutes() {
       <Route path="/student/profile" element={<ProtectedRoute allowedRoles={['student', 'school_admin', 'teacher', 'parent']}><StudentExamRoutine /></ProtectedRoute>} />
 
       {/* Admin Routes */}
+      
       <Route path="/admin/students" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentList /></ProtectedRoute>} />
       <Route path="/admin/students/new" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentForm /></ProtectedRoute>} />
       <Route path="/admin/students/:id/edit" element={<ProtectedRoute allowedRoles={['school_admin']}><StudentForm /></ProtectedRoute>} />
@@ -65,6 +67,8 @@ function AppRoutes() {
       <Route path="/admin/routines" element={<ProtectedRoute allowedRoles={['school_admin']}><RoutineManager /></ProtectedRoute>} />
       <Route path="/admin/results" element={<ProtectedRoute allowedRoles={['school_admin']}><ResultManager /></ProtectedRoute>} />
       <Route path="/admin/attendance" element={<ProtectedRoute allowedRoles={['school_admin']}><AttendanceCollection /></ProtectedRoute>} />
+      
+      <Route path="/admin/financial-reports" element={<ProtectedRoute allowedRoles={['school_admin']}><FinancialReports /></ProtectedRoute>} />
 
       {/* Teacher Routes */}
       <Route path="/teacher/dashboard" element={<ProtectedRoute allowedRoles={['teacher', 'school_admin']}><TeacherDashboard /></ProtectedRoute>} />
@@ -75,6 +79,8 @@ function AppRoutes() {
       <Route path="/parent/child-profile" element={<ProtectedRoute allowedRoles={['parent']}><ChildProfile /></ProtectedRoute>} />
 
       {/* SuperAdmin Routes */}
+      {/* Public school website - stand-in for subdomain routing during local dev.
+          In production this same page is what schoolname.amarschool.com resolves to. */}
       <Route
         path="/superadmin/schools"
         element={
@@ -117,6 +123,9 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route path="/admission" element={<AdmissionList />} />
+      <Route path="/admission/apply/:circularId" element={<ApplyForm />} />
+      <Route path="/admission/results/:circularId" element={<Results />} />
       <Route
         path="/admin/analytics"
         element={
