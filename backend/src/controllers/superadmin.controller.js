@@ -31,6 +31,8 @@ const approveSchool = async (req, res, next) => {
         to: admin.email,
         subject: 'Your school has been approved on Amar School',
         html: `<p>Hi ${admin.name},</p><p>Great news - <strong>${school.name}</strong> has been approved. You can now log in to your dashboard.</p>`,
+        category: 'school_approved',
+        school: school._id,
       });
     }
 
@@ -57,6 +59,8 @@ const rejectSchool = async (req, res, next) => {
         to: admin.email,
         subject: 'Update on your Amar School registration',
         html: `<p>Hi ${admin.name},</p><p>Unfortunately your registration for <strong>${school.name}</strong> was not approved.</p><p>Reason: ${school.rejectionReason}</p>`,
+        category: 'school_rejected',
+        school: school._id,
       });
     }
 

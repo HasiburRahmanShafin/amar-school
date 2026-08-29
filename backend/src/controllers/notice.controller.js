@@ -52,9 +52,9 @@ const removeCalendarEntry = async (notice) => {
 };
 
 // Best-effort - notifies every teacher/student/parent in the school by
-// email when a notice goes out. Mirrors how the admission module already
-// emails parents; failures are logged but never block the request (see
-// email.service.js).
+// email when a notice goes out. Same best-effort pattern used across the
+// app (admission, fee, and result notifications) - failures are logged but
+// never block the request (see email.service.js).
 const notifySchoolMembers = async (notice) => {
   const members = await User.find({
     school: notice.school,
@@ -74,6 +74,8 @@ const notifySchoolMembers = async (notice) => {
             ? ` - ${new Date(notice.endDate).toLocaleDateString()}`
             : '') +
           `</p>`,
+        category: 'notice',
+        school: notice.school,
       })
     )
   );

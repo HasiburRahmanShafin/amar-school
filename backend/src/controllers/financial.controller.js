@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Transaction = require('../models/Transaction');
 const FeeStructure = require('../models/FeeStructure');
 const User = require('../models/User');
+const { sendEmail } = require('../services/email.service');
 
 const currentAcademicYear = () => String(new Date().getFullYear());
 
@@ -130,6 +131,38 @@ const recordTransaction = async (req, res, next) => {
       paymentDate: paymentDate || Date.now(),
       recordedBy: req.user.id,
     });
+
+    // Receipt to the student + a payment-confirmation alert to the school's
+    // admins. Best-effort: a failed send never blocks the 201 response.
+    if (transaction.status === 'completed') {
+      await sendEmail({
+        to: studentUser.email,
+        subject: `Payment received - ${transaction.label || transaction.feeType}`,
+        html: `<p>Hi ${studentUser.name},</p>` +
+          `<p>We've received your payment of <strong>${transaction.amount}</strong> for ` +
+          `<strong>${transaction.label || transaction.feeType}</strong> (${transaction.className}${transaction.section ? ` - ${transaction.section}` : ''}).</p>` +
+          `<p><strong>Transaction ref:</strong> ${transaction.transactionRef || transaction._id}<br/>` +
+          `<strong>Date:</strong> ${new Date(transaction.paymentDate).toLocaleDateString()}</p>` +
+          `<p>This email serves as your receipt. Please keep it for your records.</p>`,
+        category: 'fee_receipt',
+        school: req.schoolId,
+      });
+
+      const admins = await User.find({ school: req.schoolId, role: 'school_admin', status: 'active' }).select('email name');
+      await Promise.all(
+        admins.map((admin) =>
+          sendEmail({
+            to: admin.email,
+            subject: `Payment confirmed: ${studentUser.name} - ${transaction.label || transaction.feeType}`,
+            html: `<p>Hi ${admin.name},</p>` +
+              `<p>A payment of <strong>${transaction.amount}</strong> from <strong>${studentUser.name}</strong> ` +
+              `(${transaction.className}${transaction.section ? ` - ${transaction.section}` : ''}) has been recorded.</p>`,
+            category: 'fee_payment_admin_alert',
+            school: req.schoolId,
+          })
+        )
+      );
+    }
 
     res.status(201).json(transaction);
   } catch (error) {

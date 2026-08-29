@@ -1,8 +1,43 @@
 const Student = require('../models/Student');
+const Teacher = require('../models/Teacher');
 const mongoose = require('mongoose');
+const { sendEmail } = require('../services/email.service');
 
 // Admin fields (full edit) vs Parent fields (limited)
 const PARENT_EDITABLE_FIELDS = ['guardianPhone', 'guardianEmail', 'address', 'photoUrl'];
+
+// Best-effort - emails every teacher whose assignedClasses cover this
+// class/section that a student has just joined it (new admission, or a
+// promotion moving students into it). Failures are logged but never block
+// the request (see email.service.js).
+const notifyTeachersOfClassChange = async (schoolId, className, section, studentNames) => {
+  if (!studentNames.length) return;
+
+  const teachers = await Teacher.find({
+    schoolId,
+    status: 'active',
+    assignedClasses: { $elemMatch: { class: className, section } },
+  }).select('email name');
+
+  const namesList = studentNames.length === 1
+    ? studentNames[0]
+    : `${studentNames.slice(0, -1).join(', ')} and ${studentNames[studentNames.length - 1]}`;
+
+  await Promise.all(
+    teachers.map((teacher) =>
+      sendEmail({
+        to: teacher.email,
+        subject: `New student(s) in ${className} - Section ${section}`,
+        html: `<p>Hi ${teacher.name},</p>` +
+          `<p><strong>${namesList}</strong> ${studentNames.length === 1 ? 'has' : 'have'} just been added to ` +
+          `<strong>${className} - Section ${section}</strong>, which you teach.</p>` +
+          `<p>Check your class roster for the updated list.</p>`,
+        category: 'teacher_new_student_assigned',
+        school: schoolId,
+      })
+    )
+  );
+};
 
 exports.createStudent = async (req, res) => {
   try {
@@ -19,6 +54,8 @@ exports.createStudent = async (req, res) => {
       currentClass, section, rollNumber,
       academicHistory: [{ year: new Date().getFullYear(), class: currentClass, section }],
     });
+
+    await notifyTeachersOfClassChange(req.user.schoolId, currentClass, section, [student.name]);
 
     res.status(201).json({ success: true, data: student });
   } catch (error) {
@@ -110,6 +147,21 @@ exports.promoteStudents = async (req, res) => {
         if (toSection) s.section = toSection;
         return s.save();
       })
+    );
+
+    // Group by each student's actual resulting class/section (toSection is
+    // optional, so students without it keep their original section) and
+    // notify the teachers of each group once.
+    const groups = new Map();
+    results.forEach((s) => {
+      const key = `${s.currentClass}::${s.section}`;
+      if (!groups.has(key)) groups.set(key, { className: s.currentClass, section: s.section, names: [] });
+      groups.get(key).names.push(s.name);
+    });
+    await Promise.all(
+      [...groups.values()].map((group) =>
+        notifyTeachersOfClassChange(req.user.schoolId, group.className, group.section, group.names)
+      )
     );
 
     res.json({ success: true, promotedCount: results.length, data: results });
