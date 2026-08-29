@@ -40,6 +40,8 @@ ask in the group chat before pushing a new top-level folder.
 | Module 1   | Notice & Event Management                                                                                 | Tanvir  | ✅ Done                                                                                                                                                                                                                              |
 | Module 1   | Admission Management                                                                                      | Mahima  | ✅ Done                                                                                                                                                                                                                              |
 | Module 2   | Student Management                                                                                        | Mahima  | ✅ Done
+                                                                                                                                               |
+| Module 3   | Student and Analytical Dashboard                                                                                        | Mahima  | ✅ Done
 
 
 
