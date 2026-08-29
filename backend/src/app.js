@@ -1,0 +1,48 @@
+const express = require('express');
+const cors = require('cors');
+const errorMiddleware = require('./middleware/error.middleware');
+
+const authRoutes = require('./routes/auth.routes');
+const superadminRoutes = require('./routes/superadmin.routes');
+const schoolRoutes = require('./routes/school.routes');
+const websiteRoutes = require('./routes/website.routes');
+const galleryRoutes = require('./routes/gallery.routes');
+const uploadRoutes = require('./routes/upload.routes');
+const noticeRoutes = require('./routes/notice.routes');
+const routineRoutes = require('./routes/routine.routes');
+
+const admissionRoutes = require('./routes/admission.routes');
+const studentRoutes = require('./routes/student.routes');
+const teacherRoutes = require('./routes/teacher.routes');
+const attendanceRoutes = require('./routes/attendance.routes');
+const feeRoutes = require('./routes/fee.routes');
+const app = express();
+
+app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000', credentials: true }));
+app.use(express.json({ limit: '10mb' }));
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Amar School API is running' });
+});
+
+app.use('/api/auth', authRoutes);
+app.use('/api/superadmin', superadminRoutes);
+app.use('/api/school', schoolRoutes);
+app.use('/api/website', websiteRoutes);
+app.use('/api/gallery', galleryRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/notices', noticeRoutes);
+app.use('/api/routines', routineRoutes);
+
+app.use('/api/admissions', admissionRoutes);
+app.use('/api/students', studentRoutes);
+app.use('/api/teachers', teacherRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/fees', feeRoutes);
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
+
+app.use(errorMiddleware);
+
+module.exports = app;
