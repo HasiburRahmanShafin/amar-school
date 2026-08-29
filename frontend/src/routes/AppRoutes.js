@@ -6,6 +6,7 @@ import Dashboard from '../pages/admin/Dashboard';
 import WebsiteBuilder from '../pages/admin/WebsiteBuilder';
 import GalleryManager from '../pages/admin/GalleryManager';
 import NoticeManager from '../pages/admin/NoticeManager';
+import RoutineManager from '../pages/admin/RoutineManager';
 import SchoolWebsite from '../pages/public/SchoolWebsite';
 import NotFound from '../pages/NotFound';
 import ProtectedRoute from './ProtectedRoute';
@@ -97,6 +98,24 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['school_admin']}>
             <ManageApplicants />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/notices"
+        element={
+          <ProtectedRoute allowedRoles={['school_admin']}>
+            <NoticeManager />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/routines"
+        element={
+          <ProtectedRoute allowedRoles={['school_admin']}>
+            <RoutineManager />
           </ProtectedRoute>
         }
       />

@@ -71,7 +71,7 @@ function NoticesFeed() {
               href={notice.attachmentUrl}
               target="_blank"
               rel="noreferrer"
-              download={notice.attachmentName || true}
+              download={notice.attachmentName || undefined}
               className="text-xs text-blue-600 underline"
             >
               {notice.attachmentName || 'View attachment'}
