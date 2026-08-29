@@ -14,6 +14,7 @@ const admissionRoutes = require('./routes/admission.routes');
 const studentRoutes = require('./routes/student.routes');
 const teacherRoutes = require('./routes/teacher.routes');
 const examRoutes = require('./routes/exam.routes');
+const resultRoutes = require('./routes/result.routes');
 
 const studentDashboardRoutes = require('./routes/studentDashboard.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
@@ -37,6 +38,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/notices', noticeRoutes);
 app.use('/api/routines', routineRoutes);
 app.use('/api/exams', examRoutes);
+app.use('/api/results', resultRoutes);
 
 app.use('/api/admissions', admissionRoutes);
 app.use('/api/students', studentRoutes);
@@ -46,6 +48,7 @@ app.use('/api/student-dashboard', studentDashboardRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/parent-accounts', parentAccountRoutes);
 app.use('/api/attendance', attendanceRoutes);
+
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
