@@ -57,7 +57,11 @@ const notifyRoutineChange = async (routine, { isNew }) => {
     `has been ${isNew ? 'published' : 'updated'} for <strong>${when}</strong>.</p>` +
     `<p>Please check your dashboard for the full schedule.</p>`;
 
-  await Promise.all(members.map((member) => sendEmail({ to: member.email, subject, html })));
+  await Promise.all(
+    members.map((member) =>
+      sendEmail({ to: member.email, subject, html, category: 'routine_change', school: routine.school })
+    )
+  );
 };
 
 // @route POST /api/routines
