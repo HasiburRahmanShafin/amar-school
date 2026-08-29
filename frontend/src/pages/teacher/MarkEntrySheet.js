@@ -56,7 +56,7 @@ export default function MarkEntrySheet() {
   useEffect(() => {
     const initData = async () => {
       try {
-        setLoading(true);
+        setLoadingSheet(true);
         const [examsRes, classesRes] = await Promise.all([
           examApi.getExams(),
           resultApi.getTeacherClasses(),
@@ -80,7 +80,7 @@ export default function MarkEntrySheet() {
       } catch (err) {
         showToast(err.response?.data?.message || 'Failed to initialize mark entry', 'error');
       } finally {
-        setLoading(false);
+        setLoadingSheet(false);
       }
     };
 
