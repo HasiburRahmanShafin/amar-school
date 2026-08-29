@@ -50,8 +50,7 @@ export default function Dashboard() {
   const { user, isDark } = useAuth();
   const [studentCount, setStudentCount] = useState(null);
   const [teacherCount, setTeacherCount] = useState(null);
-  const [examCount, setExamCount] = useState(null);
-
+  
   useEffect(() => {
     api.get('/students').then((r) => setStudentCount(r.data.length)).catch(() => {});
     teacherApi.get('/teachers').then((r) => setTeacherCount(r.data.length)).catch(() => {});
@@ -102,6 +101,9 @@ export default function Dashboard() {
           <ModuleCard to="/admin/gallery" icon="🖼️" title="Photo Gallery" desc="Manage school photos" accent="bg-pink-100 dark:bg-pink-900/40 text-pink-600" />
           <ModuleCard to="/admin/notices" icon="📢" title="Notices" desc="Publish notices & events" accent="bg-amber-100 dark:bg-amber-900/40 text-amber-600" />
           <ModuleCard to="/admin/admissions/circulars" icon="📄" title="Admission" desc="Circulars & applicants" accent="bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600" />
+          <ModuleCard to="/admin/analytics" icon="📊" title="Analytics" desc="School performance charts & trends" accent="bg-cyan-100 dark:bg-cyan-900/40 text-cyan-600" />
+          <ModuleCard to="/admin/parent-accounts" icon="👪" title="Parent Accounts" desc="Create parent/student logins" accent="bg-rose-100 dark:bg-rose-900/40 text-rose-600" />
+          <ModuleCard to="/admin/attendance" icon="✅" title="Attendance" desc="Mark daily class attendance" accent="bg-lime-100 dark:bg-lime-900/40 text-lime-600" />
         </div>
       </div>
 
