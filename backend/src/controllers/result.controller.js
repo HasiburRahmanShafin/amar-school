@@ -83,6 +83,63 @@ const notifyStudentsOfPublishedResults = async (sheets, schoolId) => {
 const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const exactCaseInsensitive = (value) => new RegExp(`^${escapeRegex(String(value).trim())}$`, 'i');
 
+// Best-effort - emails each student's guardian (falling back to the
+// student's own login email if no guardian email is on file) that a
+// mark sheet's results have just been published. Accepts one or more
+// published ExamResult sheets (a single sheet from updateResultStatus,
+// or several from publishAllExamResults) and notifies every student
+// across all of them, one email per student. Failures are logged but
+// never block the request (see email.service.js).
+const notifyStudentsOfPublishedResults = async (sheets, schoolId) => {
+  const sheetList = Array.isArray(sheets) ? sheets : [sheets];
+  const studentIds = [
+    ...new Set(sheetList.flatMap((sheet) => sheet.entries.map((e) => String(e.student)))),
+  ];
+  if (studentIds.length === 0) return;
+
+  const students = await Student.find({ _id: { $in: studentIds } }).select(
+    'name guardianEmail guardianName parentUserId currentClass section'
+  );
+  const studentsById = new Map(students.map((s) => [String(s._id), s]));
+
+  // A student with a login account (parentUserId or a User with role
+  // 'student') may not have guardianEmail set - fall back to that
+  // account's email so the notification still goes somewhere useful.
+  const parentUserIds = students.map((s) => s.parentUserId).filter(Boolean);
+  const parentUsers = parentUserIds.length
+    ? await User.find({ _id: { $in: parentUserIds } }).select('email')
+    : [];
+  const parentEmailById = new Map(parentUsers.map((u) => [String(u._id), u.email]));
+
+  const emailsSent = new Set();
+  await Promise.all(
+    sheetList.flatMap((sheet) =>
+      sheet.entries.map((entry) => {
+        const student = studentsById.get(String(entry.student));
+        if (!student) return null;
+        const recipient = student.guardianEmail || (student.parentUserId && parentEmailById.get(String(student.parentUserId)));
+        if (!recipient) return null;
+
+        // Multiple subject sheets can be published together for the same
+        // student - only email them once per publish action.
+        const dedupeKey = `${recipient}:${sheet._id}`;
+        if (emailsSent.has(dedupeKey)) return null;
+        emailsSent.add(dedupeKey);
+
+        return sendEmail({
+          to: recipient,
+          subject: `Exam result published - ${sheet.subject} (${student.currentClass}${student.section ? ` - ${student.section}` : ''})`,
+          html: `<p>Hi ${student.guardianName || student.name},</p>` +
+            `<p>The <strong>${sheet.subject}</strong> result for <strong>${student.name}</strong> has been published.</p>` +
+            `<p>Log in to the dashboard to view the full mark sheet and grade.</p>`,
+          category: 'result_published',
+          school: schoolId,
+        });
+      })
+    )
+  );
+};
+
 // @route GET /api/results/teacher/classes
 // @access Protected - teacher, school_admin
 exports.getTeacherClasses = async (req, res, next) => {
