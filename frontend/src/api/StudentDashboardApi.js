@@ -23,3 +23,6 @@ export const api = {
   get: (path) => request(path),
   patch: (path, body) => request(path, { method: 'PATCH', body: JSON.stringify(body) }),
 };
+
+export const getDashboardSummary = () => request('/student-dashboard/summary');
+export const getStudyMaterials = () => request('/student-dashboard/study-materials');

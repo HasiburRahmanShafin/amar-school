@@ -122,6 +122,7 @@ export default function ExamManager() {
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Filtered exams
@@ -321,7 +322,7 @@ export default function ExamManager() {
 
     setSubmitting(true);
     try {
-      const res = await examApi.scheduleMakeUpExam({
+      await examApi.scheduleMakeUpExam({
         ...makeUpForm,
         targetStudentIds: targetIds,
       });

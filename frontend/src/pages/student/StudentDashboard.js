@@ -10,9 +10,10 @@ export default function StudentDashboard() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    StudentDashboardApi.getDashboardSummary()
-      .then((res) => setSummary(res.data.data))
-      .catch((err) => setError(err.response?.data?.message || 'Failed to load dashboard'))
+    StudentDashboardApi.api
+      .get('/student-dashboard/summary')
+      .then((res) => setSummary(res.data))
+      .catch((err) => setError(err.message || 'Failed to load dashboard'))
       .finally(() => setLoading(false));
   }, []);
 

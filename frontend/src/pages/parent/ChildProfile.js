@@ -10,9 +10,10 @@ export default function ChildProfile() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    StudentDashboardApi.getDashboardSummary()
-      .then((res) => setSummary(res.data.data))
-      .catch((err) => setError(err.response?.data?.message || 'Failed to load child profile'))
+    StudentDashboardApi.api
+      .get('/student-dashboard/summary')
+      .then((res) => setSummary(res.data))
+      .catch((err) => setError(err.message || 'Failed to load child profile'))
       .finally(() => setLoading(false));
   }, []);
 
