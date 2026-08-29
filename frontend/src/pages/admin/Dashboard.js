@@ -50,6 +50,7 @@ export default function Dashboard() {
   const { user, isDark } = useAuth();
   const [studentCount, setStudentCount] = useState(null);
   const [teacherCount, setTeacherCount] = useState(null);
+  const [examCount, setExamCount] = useState(null);
 
   useEffect(() => {
     api.get('/students').then((r) => setStudentCount(r.data.length)).catch(() => {});
@@ -87,19 +88,20 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard label="Total Students" value={studentCount} icon="🎓" color="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600" to="/admin/students" />
         <StatCard label="Total Teachers" value={teacherCount} icon="👨‍🏫" color="bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600" to="/admin/teachers" />
+        <StatCard label="Exam Schedules" value="Active" icon="📝" color="bg-purple-100 dark:bg-purple-900/40 text-purple-600" to="/admin/exams" />
         <StatCard label="Notices" value={null} icon="📢" color="bg-amber-100 dark:bg-amber-900/40 text-amber-600" to="/admin/notices" />
-        <StatCard label="Applicants" value={null} icon="📋" color="bg-purple-100 dark:bg-purple-900/40 text-purple-600" to="/admin/admissions/applicants" />
       </div>
 
       {/* Quick modules */}
       <div className={`mb-8 pb-8 border-b ${divider}`}>
         <h2 className={`text-sm font-semibold uppercase tracking-wider mb-4 ${sectionTitle}`}>Quick Access</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <ModuleCard to="/admin/exams" icon="📝" title="Exam Schedules" desc="Manage terms, routines & make-ups" accent="bg-purple-100 dark:bg-purple-900/40 text-purple-600" />
+          <ModuleCard to="/admin/routines" icon="📅" title="Class Routine" desc="Manage weekly timetables" accent="bg-teal-100 dark:bg-teal-900/40 text-teal-600" />
           <ModuleCard to="/admin/website-builder" icon="🌐" title="Website Builder" desc="Customize your public school page" accent="bg-blue-100 dark:bg-blue-900/40 text-blue-600" />
           <ModuleCard to="/admin/gallery" icon="🖼️" title="Photo Gallery" desc="Manage school photos" accent="bg-pink-100 dark:bg-pink-900/40 text-pink-600" />
           <ModuleCard to="/admin/notices" icon="📢" title="Notices" desc="Publish notices & events" accent="bg-amber-100 dark:bg-amber-900/40 text-amber-600" />
-          <ModuleCard to="/admin/routines" icon="📅" title="Class Routine" desc="Manage weekly timetables" accent="bg-teal-100 dark:bg-teal-900/40 text-teal-600" />
-          <ModuleCard to="/admin/admissions/circulars" icon="📄" title="Admission" desc="Circulars & applicants" accent="bg-purple-100 dark:bg-purple-900/40 text-purple-600" />
+          <ModuleCard to="/admin/admissions/circulars" icon="📄" title="Admission" desc="Circulars & applicants" accent="bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600" />
         </div>
       </div>
 

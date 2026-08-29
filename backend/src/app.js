@@ -13,6 +13,7 @@ const routineRoutes = require('./routes/routine.routes');
 const admissionRoutes = require('./routes/admission.routes');
 const studentRoutes = require('./routes/student.routes');
 const teacherRoutes = require('./routes/teacher.routes');
+const examRoutes = require('./routes/exam.routes');
 const app = express();
 
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000', credentials: true }));
@@ -29,6 +30,7 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/notices', noticeRoutes);
 app.use('/api/routines', routineRoutes);
+app.use('/api/exams', examRoutes);
 
 app.use('/api/admissions', admissionRoutes);
 app.use('/api/students', studentRoutes);

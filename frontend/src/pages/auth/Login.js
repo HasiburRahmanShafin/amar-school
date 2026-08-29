@@ -21,6 +21,7 @@ export default function Login() {
       if (user.role === 'super_admin')  navigate('/superadmin/schools');
       else if (user.role === 'school_admin') navigate('/admin/dashboard');
       else if (user.role === 'teacher')      navigate('/teacher/dashboard');
+      else if (user.role === 'student' || user.role === 'parent') navigate('/student/exam-routine');
       else navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
