@@ -31,21 +31,19 @@ ask in the group chat before pushing a new top-level folder.
 
 ## Current Status
 
-| Module     | Feature                                                                                                   | Owner   | Status                                                                                                                                                                                                                               |
-| ---------- | --------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Foundation | Auth, roles, School registration + Super Admin approval                                                   | Shafin  | ✅ Done                                                                                                                                                                                                                              |
-| Module 1   | School Website Builder                                                                                    | Shafin  | ✅ Done                                                                                                                                                                                                                              |
-| Module 2   | Teacher Management                                                                                        | Shafin  | ✅ Done                                                                                                                                                                                                                              |
-| Module 1   | School Profile Management                                                                                 | Annama  | ✅ Done                                                                                                                                                                                                                       |
-| Module 1   | Notice & Event Management                                                                                 | Tanvir  | ✅ Done                                                                                                                                                                                                                              |
-| Module 1   | Admission Management                                                                                      | Mahima  | ✅ Done                                                                                                                                                                                                                              |
-| Module 2   | Student Management                                                                                        | Mahima  | ✅ Done
-                                                                                                                                               |
-| Module 3   | Student and Analytical Dashboard                                                                                        | Mahima  | ✅ Done
+| Module     | Feature                                                                                                   | Owner   | Status          |
+| ---------- | --------------------------------------------------------------------------------------------------------- | ------- | --------------- |
+| Foundation | Auth, roles, School registration + Super Admin approval                                                   | Shafin  | ✅ Done         |
+| Module 1   | School Website Builder                                                                                    | Shafin  | ✅ Done         |
+| Module 2   | Teacher Management                                                                                        | Shafin  | ✅ Done         |
+| Module 1   | School Profile Management                                                                                 | Annama  | ✅ Done         |
+| Module 1   | Notice & Event Management                                                                                 | Tanvir  | ✅ Done         |
+| Module 1   | Admission Management                                                                                      | Mahima  | ✅ Done         |
+| Module 2   | Student Management                                                                                        | Mahima  | ✅ Done         |
+| Module 3   | Exam Schedule Management (admin creates exams/routines, students view personalized routine, make-up exams) | Shafin  | ✅ Done         |
+| Module 3   | Result Management (mark entry, auto GPA/grade calc, report cards with PDF export, admin publish flow)     | Shafin  | ✅ Done         |
+| Module 3   | Student and Analytical Dashboard                                                                           | Mahima  | ✅ Done         |
 
-
-
- 
 
 ---
 
