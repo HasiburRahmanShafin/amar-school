@@ -16,6 +16,15 @@ const getSchoolId = (req) => {
   return req.schoolId || req.user?.schoolId;
 };
 
+// Class/section values are free-typed separately in Teacher Management
+// (assignedClasses) and Student Management (currentClass/section), so a
+// stray space or casing difference ("Class 6" saved for a teacher vs "class
+// 6" for a student) would otherwise make Student.find() silently match zero
+// students. Building a case-insensitive, trimmed exact-match regex avoids
+// that without changing how the values are stored or displayed.
+const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const exactCaseInsensitive = (value) => new RegExp(`^${escapeRegex(String(value).trim())}$`, 'i');
+
 // @route GET /api/results/teacher/classes
 // @access Protected - teacher, school_admin
 exports.getTeacherClasses = async (req, res, next) => {
@@ -99,13 +108,13 @@ exports.getMarkEntrySheet = async (req, res, next) => {
     const passMarks = matchedSlot?.passMarks || 33;
 
     // 2. Fetch all active enrolled students in this class and section
-    const studentFilter = {
+        const studentFilter = {
       schoolId,
-      currentClass: className,
+      currentClass: exactCaseInsensitive(className),
       status: 'active',
     };
     if (section && section !== 'All') {
-      studentFilter.section = section;
+      studentFilter.section = exactCaseInsensitive(section);
     }
 
     const students = await Student.find(studentFilter).sort({ rollNumber: 1, name: 1 });
