@@ -330,15 +330,16 @@ export default function MarkEntrySheet() {
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
                 Class & Section
               </label>
-              <select
-                value={`${selectedClass}:::${selectedSection}`}
+                            <select
+                value={distinctClasses.length > 0 ? `${selectedClass}:::${selectedSection}` : ''}
                 onChange={(e) => {
                   const [c, s] = e.target.value.split(':::');
                   setSelectedClass(c);
                   setSelectedSection(s || 'All');
                 }}
                 id="select-class-section"
-                className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                disabled={distinctClasses.length === 0}
+                className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {distinctClasses.length > 0 ? (
                   distinctClasses.map((item, idx) => (
@@ -347,7 +348,7 @@ export default function MarkEntrySheet() {
                     </option>
                   ))
                 ) : (
-                  <option value="Class 8:::A">Class 8 - Section A</option>
+                  <option value="">No classes assigned</option>
                 )}
               </select>
             </div>
@@ -502,6 +503,10 @@ export default function MarkEntrySheet() {
           {loadingSheet ? (
             <div className="py-20 text-center text-slate-400 text-sm animate-pulse">
               Loading mark entry sheet…
+            </div>
+                    ) : distinctClasses.length === 0 ? (
+            <div className="py-20 text-center text-slate-400 text-sm max-w-md mx-auto">
+              You don't have any classes assigned yet. Ask your school administrator to add your class, section, and subject under Teacher Management → Class schedule.
             </div>
           ) : entries.length === 0 ? (
             <div className="py-20 text-center text-slate-400 text-sm">
