@@ -1,11 +1,3 @@
-// Calls OSRM's free public routing API to get a driving route between two
-// points, and wraps the browser's Geolocation API to find "you" on the map.
-// No API key needed. Docs: http://project-osrm.org/docs/v5.24.0/api/#route-service
-//
-// NOTE: router.project-osrm.org is OSRM's public demo server - fine for this
-// project/demo, but it has no uptime guarantee and isn't meant for real
-// production traffic. A production deployment would self-host OSRM instead.
-
 const OSRM_BASE = 'https://router.project-osrm.org';
 
 export function getCurrentLocation() {
