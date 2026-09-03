@@ -1,0 +1,224 @@
+diff --git a/frontend/src/api/directionsApi.js b/frontend/src/api/directionsApi.js
+new file mode 100644
+index 0000000..7c1b535
+--- /dev/null
++++ b/frontend/src/api/directionsApi.js
+@@ -0,0 +1,46 @@
++// Calls OSRM's free public routing API to get a driving route between two
++// points, and wraps the browser's Geolocation API to find "you" on the map.
++// No API key needed. Docs: http://project-osrm.org/docs/v5.24.0/api/#route-service
++//
++// NOTE: router.project-osrm.org is OSRM's public demo server - fine for this
++// project/demo, but it has no uptime guarantee and isn't meant for real
++// production traffic. A production deployment would self-host OSRM instead.
++
++const OSRM_BASE = 'https://router.project-osrm.org';
++
++export function getCurrentLocation() {
++  return new Promise((resolve, reject) => {
++    if (!navigator.geolocation) {
++      reject(new Error('Geolocation is not supported by your browser'));
++      return;
++    }
++    navigator.geolocation.getCurrentPosition(
++      (position) => resolve({ lat: position.coords.latitude, lng: position.coords.longitude }),
++      () => reject(new Error('Location permission denied - enable it to get directions')),
++      { timeout: 10000 }
++    );
++  });
++}
++
++export async function getRoute(fromLat, fromLng, toLat, toLng) {
++  // OSRM expects coordinates as lng,lat (reverse of the usual lat,lng order)
++  const url = `${OSRM_BASE}/route/v1/driving/${fromLng},${fromLat};${toLng},${toLat}?overview=full&geometries=geojson`;
++
++  const response = await fetch(url);
++  if (!response.ok) {
++    throw new Error('Could not calculate a route right now, please try again');
++  }
++
++  const data = await response.json();
++  if (!data.routes || data.routes.length === 0) {
++    throw new Error('No driving route found between these locations');
++  }
++
++  const route = data.routes[0];
++  return {
++    // GeoJSON gives [lng, lat] pairs - Leaflet's polyline wants [lat, lng]
++    path: route.geometry.coordinates.map(([lng, lat]) => [lat, lng]),
++    distanceKm: (route.distance / 1000).toFixed(1),
++    durationMin: Math.round(route.duration / 60),
++  };
++}
+diff --git a/frontend/src/components/DirectionsPanel.js b/frontend/src/components/DirectionsPanel.js
+new file mode 100644
+index 0000000..2cf8836
+--- /dev/null
++++ b/frontend/src/components/DirectionsPanel.js
+@@ -0,0 +1,114 @@
++import { useEffect, useRef, useState } from 'react';
++import L from 'leaflet';
++import 'leaflet/dist/leaflet.css';
++import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
++import markerIcon from 'leaflet/dist/images/marker-icon.png';
++import markerShadow from 'leaflet/dist/images/marker-shadow.png';
++import { getCurrentLocation, getRoute } from '../api/directionsApi';
++
++// Same Webpack marker-icon fix as LeafletMap.js
++delete L.Icon.Default.prototype._getIconUrl;
++L.Icon.Default.mergeOptions({
++  iconRetinaUrl: markerIcon2x,
++  iconUrl: markerIcon,
++  shadowUrl: markerShadow,
++});
++
++// Shows the school on a map plus a "Get Directions" button that geolocates
++// the visitor, fetches a driving route from OSRM, and draws it in-app -
++// replaces the old approach of linking out to openstreetmap.org/directions.
++function DirectionsPanel({ schoolLat, schoolLng, schoolName }) {
++  const containerRef = useRef(null);
++  const mapRef = useRef(null);
++  const routeLayerRef = useRef(null);
++  const userMarkerRef = useRef(null);
++
++  const [loading, setLoading] = useState(false);
++  const [error, setError] = useState(null);
++  const [route, setRoute] = useState(null); // { distanceKm, durationMin }
++
++  // Base map with just the school marker, created once on mount
++  useEffect(() => {
++    if (mapRef.current) return;
++
++    const map = L.map(containerRef.current).setView([schoolLat, schoolLng], 14);
++
++    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
++      attribution: '&copy; OpenStreetMap contributors',
++      maxZoom: 19,
++    }).addTo(map);
++
++    L.marker([schoolLat, schoolLng]).addTo(map).bindPopup(schoolName || 'School');
++
++    mapRef.current = map;
++    setTimeout(() => map.invalidateSize(), 150);
++
++    return () => {
++      map.remove();
++      mapRef.current = null;
++    };
++    // eslint-disable-next-line react-hooks/exhaustive-deps
++  }, []);
++
++  const handleGetDirections = async () => {
++    setLoading(true);
++    setError(null);
++
++    try {
++      const userLocation = await getCurrentLocation();
++      const routeResult = await getRoute(userLocation.lat, userLocation.lng, schoolLat, schoolLng);
++
++      const map = mapRef.current;
++
++      // Clear a previous search's route/marker before drawing the new one
++      if (routeLayerRef.current) map.removeLayer(routeLayerRef.current);
++      if (userMarkerRef.current) map.removeLayer(userMarkerRef.current);
++
++      userMarkerRef.current = L.marker([userLocation.lat, userLocation.lng])
++        .addTo(map)
++        .bindPopup('Your location')
++        .openPopup();
++
++      routeLayerRef.current = L.polyline(routeResult.path, { color: '#2563eb', weight: 4 }).addTo(map);
++
++      // Zoom/pan so the whole route is visible
++      map.fitBounds(routeLayerRef.current.getBounds(), { padding: [30, 30] });
++
++      setRoute(routeResult);
++    } catch (err) {
++      setError(err.message);
++    } finally {
++      setLoading(false);
++    }
++  };
++
++  return (
++    <div>
++      <div ref={containerRef} style={{ height: '220px', width: '100%', borderRadius: '8px' }} />
++
++      <button
++        type="button"
++        onClick={handleGetDirections}
++        disabled={loading}
++        className="w-full mt-3 bg-blue-600 text-white text-sm px-4 py-2 rounded disabled:opacity-50"
++      >
++        {loading ? 'Finding route...' : 'Get Directions From My Location'}
++      </button>
++
++      {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
++
++      {route && (
++        <p className="text-sm text-gray-600 mt-2">
++          <strong>{route.distanceKm} km</strong> away — approx. {route.durationMin} min by car
++        </p>
++      )}
++
++      <p className="text-[11px] text-gray-400 mt-2">
++        Routing via OSRM's public demo server — a production deployment would use a
++        self-hosted OSRM instance for reliability.
++      </p>
++    </div>
++  );
++}
++
++export default DirectionsPanel;
+diff --git a/frontend/src/pages/public/SchoolWebsite.js b/frontend/src/pages/public/SchoolWebsite.js
+index 05925a0..43289d8 100644
+--- a/frontend/src/pages/public/SchoolWebsite.js
++++ b/frontend/src/pages/public/SchoolWebsite.js
+@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
+ import { useParams } from 'react-router-dom';
+ import * as websiteApi from '../../api/websiteApi';
+ import * as galleryApi from '../../api/galleryApi';
+-import LeafletMap from '../../components/LeafletMap';
++import DirectionsPanel from '../../components/DirectionsPanel';
+ 
+ function SchoolWebsite() {
+   const { subdomain } = useParams();
+@@ -38,11 +38,6 @@ function SchoolWebsite() {
+     (a, b) => new Date(a.date) - new Date(b.date)
+   );
+ 
+-  const directionsUrl =
+-    school.location?.lat && school.location?.lng
+-      ? `https://www.openstreetmap.org/directions?to=${school.location.lat}%2C${school.location.lng}`
+-      : null;
+-
+   return (
+     <div className="min-h-screen bg-gray-50">
+       {/* Banner */}
+@@ -140,21 +135,14 @@ function SchoolWebsite() {
+                   ))}
+                 </div>
+               )}
+-
+-              {directionsUrl && (
+-                <a
+-                  href={directionsUrl}
+-                  target="_blank"
+-                  rel="noreferrer"
+-                  className="inline-block mt-3 bg-blue-600 text-white text-sm px-4 py-2 rounded"
+-                >
+-                  Get Directions
+-                </a>
+-              )}
+             </div>
+ 
+             {school.location?.lat && school.location?.lng && (
+-              <LeafletMap lat={school.location.lat} lng={school.location.lng} height="220px" />
++              <DirectionsPanel
++                schoolLat={school.location.lat}
++                schoolLng={school.location.lng}
++                schoolName={school.name}
++              />
+             )}
+           </div>
+         </section>
