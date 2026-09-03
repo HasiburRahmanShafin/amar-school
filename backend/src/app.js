@@ -7,10 +7,25 @@ const superadminRoutes = require('./routes/superadmin.routes');
 const websiteRoutes = require('./routes/website.routes');
 const galleryRoutes = require('./routes/gallery.routes');
 const uploadRoutes = require('./routes/upload.routes');
+const noticeRoutes = require('./routes/notice.routes');
+const routineRoutes = require('./routes/routine.routes');
+
+const admissionRoutes = require('./routes/admission.routes');
+const studentRoutes = require('./routes/student.routes');
+const teacherRoutes = require('./routes/teacher.routes');
+const examRoutes = require('./routes/exam.routes');
+const resultRoutes = require('./routes/result.routes');
+
+const studentDashboardRoutes = require('./routes/studentDashboard.routes');
+const analyticsRoutes = require('./routes/analytics.routes');
+const parentAccountRoutes = require('./routes/parentAccount.routes');
+const attendanceRoutes = require('./routes/attendance.routes');
+
+const financialRoutes = require('./routes/financial.routes');
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL || '*', credentials: true }));
+app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000', credentials: true }));
 // Default express.json() limit is 100kb - too small once logoUrl/bannerUrl
 // hold base64 image data, so this is raised to comfortably fit a couple
 // of images in one request.
@@ -25,6 +40,20 @@ app.use('/api/superadmin', superadminRoutes);
 app.use('/api/website', websiteRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/notices', noticeRoutes);
+app.use('/api/routines', routineRoutes);
+app.use('/api/exams', examRoutes);
+app.use('/api/results', resultRoutes);
+
+app.use('/api/admissions', admissionRoutes);
+app.use('/api/students', studentRoutes);
+app.use('/api/teachers', teacherRoutes);
+
+app.use('/api/student-dashboard', studentDashboardRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/parent-accounts', parentAccountRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/financial', financialRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
