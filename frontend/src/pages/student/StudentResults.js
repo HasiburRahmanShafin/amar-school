@@ -34,26 +34,20 @@ export default function StudentResults() {
   useEffect(() => {
     const initStudent = async () => {
       try {
-        const [metaRes, studRes] = await Promise.all([
-          examApi.getExamMeta().catch(() => ({ data: { academicTerms: [] } })),
-          studentApi.get('/students').catch(() => ({ data: [] })),
-        ]);
-
+        const metaRes = await examApi.getExamMeta().catch(() => ({ data: { academicTerms: [] } }));
         setAcademicTerms(metaRes.data?.academicTerms || ['Term 1', 'Term 2', 'Final Term', 'Half Yearly']);
-        const studentList = studRes.data || [];
-        setAllStudents(studentList);
 
-        let matching = null;
-        if (user?.role === 'student' && user?.email) {
-          matching = studentList.find((s) => s.guardianEmail === user.email || s.studentId === user.studentId);
-        }
-
-        if (matching) {
-          setStudentProfile(matching);
-          setStudentId(matching.studentId);
-        } else if (studentList.length > 0) {
-          setStudentProfile(studentList[0]);
-          setStudentId(studentList[0].studentId);
+        if (user?.role === 'school_admin' || user?.role === 'teacher') {
+          const studRes = await studentApi.get('/students').catch(() => ({ data: [] }));
+          const studentList = studRes.data || [];
+          setAllStudents(studentList);
+          if (studentList.length > 0) {
+            setStudentProfile(studentList[0]);
+            setStudentId(studentList[0].studentId);
+          }
+        } else {
+          // Student or parent: directly fetch results (backend auto-resolves student from user session)
+          fetchResults();
         }
       } catch (err) {
         console.error('Failed to init student data', err);
@@ -61,6 +55,7 @@ export default function StudentResults() {
     };
 
     initStudent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   // Fetch student published results
@@ -72,14 +67,27 @@ export default function StudentResults() {
       if (selectedTerm !== 'ALL') params.academicTerm = selectedTerm;
 
       const res = await resultApi.getStudentResults(params);
-      setExamResults(res.data.data || []);
+      const results = res.data.data || [];
+      setExamResults(results);
+      if (res.data.studentId) {
+        setStudentId(res.data.studentId);
+        if (!studentProfile && results.length > 0) {
+          const first = results[0];
+          setStudentProfile({
+            name: first.studentName || user?.name,
+            studentId: res.data.studentId,
+            currentClass: first.className,
+            section: first.section,
+          });
+        }
+      }
       setLastUpdated(new Date());
     } catch (err) {
       console.error('Failed to fetch student results', err);
     } finally {
       if (!quiet) setLoading(false);
     }
-  }, [studentId, selectedTerm]);
+  }, [studentId, selectedTerm, user, studentProfile]);
 
   useEffect(() => {
     if (studentId) {

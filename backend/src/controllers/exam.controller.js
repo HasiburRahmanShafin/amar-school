@@ -461,21 +461,22 @@ exports.getStudentExamRoutine = async (req, res, next) => {
   try {
     let { className, section, studentId, academicTerm } = req.query;
 
-    // If a student or parent is logged in without query parameters, try looking up their Student record
-    if ((!className || !studentId) && (req.user.role === 'student' || req.user.role === 'parent')) {
-      const studentProfile = await Student.findOne({
-        schoolId: req.schoolId,
+    let resolvedStudent = null;
+    if (req.user.role === 'student' || req.user.role === 'parent' || (!className && !studentId)) {
+      resolvedStudent = await Student.findOne({
+        schoolId: req.schoolId || req.user.schoolId,
         $or: [
-          ...(req.user.email ? [{ guardianEmail: req.user.email }] : []),
+          ...(req.user.id ? [{ studentUserId: req.user.id }, { userId: req.user.id }] : []),
           { parentUserId: req.user.id },
+          ...(req.user.email ? [{ guardianEmail: req.user.email }] : []),
           ...(studentId ? [{ studentId }] : []),
         ],
       });
 
-      if (studentProfile) {
-        if (!className) className = studentProfile.currentClass;
-        if (!section) section = studentProfile.section;
-        if (!studentId) studentId = studentProfile.studentId;
+      if (resolvedStudent) {
+        if (!className) className = resolvedStudent.currentClass;
+        if (!section) section = resolvedStudent.section;
+        if (!studentId) studentId = resolvedStudent.studentId;
       }
     }
 
@@ -524,9 +525,11 @@ exports.getStudentExamRoutine = async (req, res, next) => {
     res.json({
       success: true,
       studentInfo: {
+        name: resolvedStudent?.name || null,
         className: className || 'All Classes',
         section: section || 'All Sections',
         studentId: studentId || null,
+        rollNumber: resolvedStudent?.rollNumber || null,
       },
       count: personalizedExams.length,
       data: personalizedExams,

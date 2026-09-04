@@ -44,30 +44,39 @@ export default function StudentExamRoutine() {
       const metaRes = await examApi.getExamMeta().catch(() => ({ data: { classes: [], academicTerms: [] } }));
       setMeta(metaRes.data || { classes: [], academicTerms: [] });
 
-      // If enrolled student or user, try to get student details
-      const studentRes = await studentApi.get('/students').catch(() => ({ data: [] }));
-      const studentList = studentRes.data || [];
-
-      let matchingStudent = null;
-      if (user?.role === 'student' && user?.email) {
-        matchingStudent = studentList.find((s) => s.guardianEmail === user.email || s.studentId === user.studentId);
-      }
-
-      if (matchingStudent) {
-        setStudentProfile(matchingStudent);
-        setCurrentClass(matchingStudent.currentClass);
-        setSection(matchingStudent.section);
-        setStudentId(matchingStudent.studentId);
-      } else if (studentList.length > 0) {
-        // Default to first student/class if admin/teacher previewing or no profile found
-        const first = studentList[0];
-        setStudentProfile(first);
-        setCurrentClass(first.currentClass);
-        setSection(first.section);
-        setStudentId(first.studentId);
-      } else if (metaRes.data?.classes?.length > 0) {
-        setCurrentClass(metaRes.data.classes[0].className);
-        setSection(metaRes.data.classes[0].section || 'All');
+      if (user?.role === 'student' || user?.role === 'parent') {
+        const routineRes = await examApi.getStudentExamRoutine({}).catch(() => ({ data: { data: [] } }));
+        setExams(routineRes.data?.data || []);
+        if (routineRes.data?.studentInfo) {
+          const info = routineRes.data.studentInfo;
+          if (info.className && info.className !== 'All Classes') setCurrentClass(info.className);
+          if (info.section && info.section !== 'All Sections') setSection(info.section);
+          if (info.studentId) setStudentId(info.studentId);
+          setStudentProfile({
+            name: info.name || user?.name,
+            studentId: info.studentId,
+            currentClass: info.className,
+            section: info.section,
+            rollNumber: info.rollNumber,
+          });
+        }
+      } else {
+        // If admin / teacher previewing
+        if (user?.role === 'school_admin') {
+          const studentRes = await studentApi.get('/students').catch(() => ({ data: [] }));
+          const studentList = studentRes.data || [];
+          if (studentList.length > 0) {
+            const first = studentList[0];
+            setStudentProfile(first);
+            setCurrentClass(first.currentClass);
+            setSection(first.section);
+            setStudentId(first.studentId);
+          }
+        }
+        if (metaRes.data?.classes?.length > 0) {
+          setCurrentClass((prev) => prev || metaRes.data.classes[0].className);
+          setSection((prev) => (prev && prev !== 'All' ? prev : metaRes.data.classes[0].section || 'All'));
+        }
       }
     } catch (err) {
       console.error('Failed to init student exam data', err);
@@ -86,23 +95,34 @@ export default function StudentExamRoutine() {
 
       const res = await examApi.getStudentExamRoutine(params);
       setExams(res.data.data || []);
+      if (res.data.studentInfo && (user?.role === 'student' || user?.role === 'parent')) {
+        const info = res.data.studentInfo;
+        setStudentProfile((prev) => ({
+          ...prev,
+          name: info.name || prev?.name || user?.name,
+          studentId: info.studentId || prev?.studentId,
+          currentClass: info.className !== 'All Classes' ? info.className : prev?.currentClass,
+          section: info.section !== 'All Sections' ? info.section : prev?.section,
+          rollNumber: info.rollNumber || prev?.rollNumber,
+        }));
+      }
       setLastUpdated(new Date());
     } catch (err) {
       console.error('Failed to fetch personalized exam routine', err);
     } finally {
       if (!quiet) setLoading(false);
     }
-  }, [currentClass, section, studentId, selectedTerm]);
+  }, [currentClass, section, studentId, selectedTerm, user]);
 
   useEffect(() => {
     initStudentData();
   }, [initStudentData]);
 
   useEffect(() => {
-    if (currentClass) {
+    if (currentClass && user?.role !== 'student' && user?.role !== 'parent') {
       fetchRoutine();
     }
-  }, [currentClass, section, studentId, selectedTerm, fetchRoutine]);
+  }, [currentClass, section, studentId, selectedTerm, fetchRoutine, user]);
 
   // Dynamic live auto-refresh every 30 seconds for instant synchronization
   useEffect(() => {

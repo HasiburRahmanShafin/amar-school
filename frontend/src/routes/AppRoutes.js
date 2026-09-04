@@ -78,7 +78,8 @@ function AppRoutes() {
       {/* Teacher Routes */}
       <Route path="/teacher/dashboard" element={<ProtectedRoute allowedRoles={['teacher', 'school_admin']}><TeacherDashboard /></ProtectedRoute>} />
       <Route path="/teacher/marks" element={<ProtectedRoute allowedRoles={['teacher', 'school_admin']}><MarkEntrySheet /></ProtectedRoute>} />
-      <Route path="/teacher/profile" element={<ProtectedRoute allowedRoles={['teacher']}><MyProfile /></ProtectedRoute>} />
+      <Route path="/teacher/exam-routine" element={<ProtectedRoute allowedRoles={['teacher', 'school_admin']}><StudentExamRoutine /></ProtectedRoute>} />
+      <Route path="/teacher/profile" element={<ProtectedRoute allowedRoles={['teacher', 'school_admin']}><MyProfile /></ProtectedRoute>} />
 
       {/* Parent Routes */}
       <Route path="/parent/child-profile" element={<ProtectedRoute allowedRoles={['parent']}><ChildProfile /></ProtectedRoute>} />

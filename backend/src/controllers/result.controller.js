@@ -74,6 +74,15 @@ const notifyStudentsOfPublishedResults = async (sheets, schoolId) => {
   );
 };
 
+// Class/section values are free-typed separately in Teacher Management
+// (assignedClasses) and Student Management (currentClass/section), so a
+// stray space or casing difference ("Class 6" saved for a teacher vs "class
+// 6" for a student) would otherwise make Student.find() silently match zero
+// students. Building a case-insensitive, trimmed exact-match regex avoids
+// that without changing how the values are stored or displayed.
+const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const exactCaseInsensitive = (value) => new RegExp(`^${escapeRegex(String(value).trim())}$`, 'i');
+
 // @route GET /api/results/teacher/classes
 // @access Protected - teacher, school_admin
 exports.getTeacherClasses = async (req, res, next) => {
@@ -162,8 +171,8 @@ exports.getMarkEntrySheet = async (req, res, next) => {
       currentClass: className,
       status: 'active',
     };
-    if (section && section !== 'All') {
-      studentFilter.section = section;
+    if (section && section.trim().toLowerCase() !== 'all') {
+      studentFilter.section = exactCaseInsensitive(section);
     }
 
     const students = await Student.find(studentFilter).sort({ rollNumber: 1, name: 1 });
@@ -572,12 +581,13 @@ exports.getStudentResults = async (req, res, next) => {
     let { studentId, rollNumber, className, examId, academicTerm } = req.query;
 
     // If logged in as student or parent, resolve student record
-    if (req.user.role === 'student' || req.user.role === 'parent') {
+    if (req.user.role === 'student' || req.user.role === 'parent' || (!className && !studentId)) {
       const studentProfile = await Student.findOne({
         schoolId,
         $or: [
-          ...(req.user.email ? [{ guardianEmail: req.user.email }] : []),
+          ...(req.user.id ? [{ studentUserId: req.user.id }, { userId: req.user.id }] : []),
           { parentUserId: req.user.id },
+          ...(req.user.email ? [{ guardianEmail: req.user.email }] : []),
           ...(studentId ? [{ studentId }] : []),
         ],
       });
@@ -725,9 +735,28 @@ exports.getStudentResults = async (req, res, next) => {
 exports.getReportCardData = async (req, res, next) => {
   try {
     const schoolId = getSchoolId(req);
-    const { examId, studentId } = req.query;
+    let { examId, studentId } = req.query;
 
-    if (!examId || !studentId) {
+    if (!examId) {
+      return res.status(400).json({ success: false, message: 'Exam ID is required' });
+    }
+
+    // Auto-resolve studentId if not provided for student or parent
+    if (!studentId && (req.user.role === 'student' || req.user.role === 'parent')) {
+      const studentDoc = await Student.findOne({
+        schoolId,
+        $or: [
+          ...(req.user.id ? [{ studentUserId: req.user.id }, { userId: req.user.id }] : []),
+          { parentUserId: req.user.id },
+          ...(req.user.email ? [{ guardianEmail: req.user.email }] : []),
+        ],
+      });
+      if (studentDoc) {
+        studentId = studentDoc.studentId;
+      }
+    }
+
+    if (!studentId) {
       return res.status(400).json({ success: false, message: 'Exam ID and Student ID are required' });
     }
 
