@@ -93,7 +93,7 @@ export default function TeacherForm() {
       setIssuedCredentials(res.data);
       showToast('Login account created', 'success');
     } catch (err) {
-      showToast(err.message || 'Failed to create login account', 'error');
+      showToast(err.response?.data?.message || err.message || 'Failed to create login account', 'error');
     } finally {
       setAccountBusy(false);
     }
@@ -108,7 +108,7 @@ export default function TeacherForm() {
       setIssuedCredentials(null);
       showToast('Login access revoked', 'success');
     } catch (err) {
-      showToast(err.message || 'Failed to revoke login access', 'error');
+      showToast(err.response?.data?.message || err.message || 'Failed to revoke login access', 'error');
     } finally {
       setAccountBusy(false);
     }
@@ -142,8 +142,9 @@ export default function TeacherForm() {
       }
       navigate('/admin/teachers');
     } catch (err) {
-      setError(err.message);
-      showToast(err.message || 'Failed to save teacher', 'error');
+      const errMsg = err.response?.data?.message || err.message || 'Failed to save teacher';
+      setError(errMsg);
+      showToast(errMsg, 'error');
     } finally {
       setSubmitting(false);
     }

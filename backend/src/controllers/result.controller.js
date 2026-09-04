@@ -441,9 +441,13 @@ exports.saveMarkEntrySheet = async (req, res, next) => {
         section: section || 'All',
         subject,
       },
-      sheetData,
-      { new: true, upsert: true, runValidators: true }
+      { $set: sheetData },
+      { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true }
     );
+
+    if (isPublishing) {
+      await notifyStudentsOfPublishedResults(updatedSheet, schoolId);
+    }
 
     res.json({
       success: true,
@@ -642,8 +646,9 @@ exports.getStudentResults = async (req, res, next) => {
       const studentProfile = await Student.findOne({
         schoolId,
         $or: [
-          ...(req.user.email ? [{ guardianEmail: req.user.email }] : []),
           { parentUserId: req.user.id },
+          ...(req.user.id ? [{ userId: req.user.id }] : []),
+          ...(req.user.email ? [{ guardianEmail: req.user.email }] : []),
           ...(studentId ? [{ studentId }] : []),
         ],
       });
@@ -920,7 +925,7 @@ exports.getReportCardData = async (req, res, next) => {
           percentage: overallResult.percentage,
           overallGPA: overallResult.overallGPA,
           overallGrade: overallResult.overallGrade,
-          classRank: myRankItem?.classRank || 1,
+          classRank: myRankItem?.classRank ?? null,
           totalStudentsInClass: ranked.length,
           averageAttendance,
           passedSubjectsCount: overallResult.passedSubjectsCount,
