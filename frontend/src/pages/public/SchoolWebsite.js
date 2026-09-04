@@ -2,13 +2,9 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import * as websiteApi from '../../api/websiteApi';
 import * as galleryApi from '../../api/galleryApi';
-<<<<<<< Updated upstream
 import * as noticeApi from '../../api/noticeApi';
 import * as routineApi from '../../api/routineApi';
-import LeafletMap from '../../components/LeafletMap';
-=======
 import DirectionsPanel from '../../components/DirectionsPanel';
->>>>>>> Stashed changes
 
 const DAY_LABELS = {
   saturday: 'Saturday',
