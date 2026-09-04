@@ -51,8 +51,13 @@ const teacherSchema = new mongoose.Schema(
 teacherSchema.pre('save', async function generateTeacherId(next) {
   if (this.teacherId) return next();
   const year = new Date().getFullYear();
-  const count = await mongoose.model('Teacher').countDocuments({ schoolId: this.schoolId });
-  this.teacherId = `TCH-${year}-${String(count + 1).padStart(4, '0')}`;
+  let count = await mongoose.model('Teacher').countDocuments({ schoolId: this.schoolId });
+  let candidate = `TCH-${year}-${String(count + 1).padStart(4, '0')}`;
+  while (await mongoose.model('Teacher').exists({ teacherId: candidate })) {
+    count++;
+    candidate = `TCH-${year}-${String(count + 1).padStart(4, '0')}`;
+  }
+  this.teacherId = candidate;
   next();
 });
 

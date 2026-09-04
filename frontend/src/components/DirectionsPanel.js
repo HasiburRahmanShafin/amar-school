@@ -27,9 +27,14 @@ function DirectionsPanel({ schoolLat, schoolLng, schoolName }) {
   const [error, setError] = useState(null);
   const [route, setRoute] = useState(null); // { distanceKm, durationMin }
 
-  // Base map with just the school marker, created once on mount
+  // Base map with just the school marker, created/updated when coordinates change
   useEffect(() => {
-    if (mapRef.current) return;
+    if (!containerRef.current || !schoolLat || !schoolLng) return;
+
+    if (mapRef.current) {
+      mapRef.current.remove();
+      mapRef.current = null;
+    }
 
     const map = L.map(containerRef.current).setView([schoolLat, schoolLng], 14);
 
@@ -41,14 +46,17 @@ function DirectionsPanel({ schoolLat, schoolLng, schoolName }) {
     L.marker([schoolLat, schoolLng]).addTo(map).bindPopup(schoolName || 'School');
 
     mapRef.current = map;
-    setTimeout(() => map.invalidateSize(), 150);
+    setTimeout(() => {
+      if (mapRef.current) mapRef.current.invalidateSize();
+    }, 150);
 
     return () => {
-      map.remove();
-      mapRef.current = null;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [schoolLat, schoolLng, schoolName]);
 
   const handleGetDirections = async () => {
     setLoading(true);

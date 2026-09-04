@@ -18,6 +18,7 @@ const protect = (req, res, next) => {
       role: decoded.role,
       schoolId: decoded.schoolId,
     };
+    req.schoolId = decoded.schoolId;
     next();
   } catch (error) {
     return res.status(401).json({ message: 'Not authorized, token invalid or expired' });

@@ -1,4 +1,5 @@
 const Exam = require('../models/Exam');
+const ExamResult = require('../models/ExamResult');
 const Student = require('../models/Student');
 const User = require('../models/User');
 
@@ -10,7 +11,9 @@ const calculateDuration = (startTime, endTime) => {
   if (isNaN(startH) || isNaN(startM) || isNaN(endH) || isNaN(endM)) return null;
   const totalStart = startH * 60 + startM;
   const totalEnd = endH * 60 + endM;
-  return totalEnd > totalStart ? totalEnd - totalStart : null;
+  if (totalEnd > totalStart) return totalEnd - totalStart;
+  if (totalEnd < totalStart) return (24 * 60 - totalStart) + totalEnd;
+  return null;
 };
 
 // Helper to sort routines by date and startTime
@@ -210,10 +213,12 @@ exports.togglePublishExam = async (req, res, next) => {
 // @access Protected - school_admin
 exports.deleteExam = async (req, res, next) => {
   try {
-    const exam = await Exam.findOneAndDelete({ _id: req.params.id, school: req.schoolId });
+    const schoolId = req.schoolId || req.user?.schoolId;
+    const exam = await Exam.findOneAndDelete({ _id: req.params.id, school: schoolId });
     if (!exam) {
       return res.status(404).json({ success: false, message: 'Exam schedule not found' });
     }
+    await ExamResult.deleteMany({ school: schoolId, exam: req.params.id });
     res.json({ success: true, message: 'Exam schedule deleted successfully' });
   } catch (error) {
     next(error);
@@ -464,10 +469,11 @@ exports.getStudentExamRoutine = async (req, res, next) => {
     // If a student or parent is logged in without query parameters, try looking up their Student record
     if ((!className || !studentId) && (req.user.role === 'student' || req.user.role === 'parent')) {
       const studentProfile = await Student.findOne({
-        schoolId: req.schoolId,
+        schoolId: req.schoolId || req.user.schoolId,
         $or: [
-          ...(req.user.email ? [{ guardianEmail: req.user.email }] : []),
           { parentUserId: req.user.id },
+          ...(req.user.id ? [{ userId: req.user.id }] : []),
+          ...(req.user.email ? [{ guardianEmail: req.user.email }] : []),
           ...(studentId ? [{ studentId }] : []),
         ],
       });
