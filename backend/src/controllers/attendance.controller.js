@@ -1,7 +1,21 @@
 const Attendance = require('../models/Attendance');
 const Student = require('../models/Student');
+const Teacher = require('../models/Teacher');
 const Notification = require('../models/Notification');
 const { sendEmail } = require('../services/email.service');
+
+// Defense in depth: even though the UI only offers a teacher their own
+// assigned classes, make sure the API itself refuses to let a teacher
+// take attendance for a class/section they aren't assigned to.
+const teacherOwnsClass = async (req, className, section) => {
+  if (req.user.role !== 'teacher') return true;
+  const teacher = await Teacher.findOne({
+    userId: req.user.id,
+    schoolId: req.schoolId,
+    assignedClasses: { $elemMatch: { class: className, section } },
+  });
+  return !!teacher;
+};
 
 // Every time a student's absence count hits a multiple of this number
 // (5, 10, 15, ...) within the calendar/academic year, their guardian gets
@@ -91,7 +105,7 @@ const checkAndSendAbsenceAlerts = async (schoolId, records, targetDate) => {
 };
  
 // @route GET /api/attendance/class?class=&section=&date=
-// @access Protected - school_admin, teacher
+// @access Protected - teacher
 // Returns every active student in the class/section, joined with today's
 // attendance record if one already exists (so the UI can pre-fill statuses).
 exports.getClassAttendance = async (req, res) => {
@@ -99,6 +113,10 @@ exports.getClassAttendance = async (req, res) => {
     const { class: className, section, date } = req.query;
     if (!className || !section || !date) {
       return res.status(400).json({ success: false, message: 'class, section and date are required' });
+    }
+
+    if (!(await teacherOwnsClass(req, className, section))) {
+      return res.status(403).json({ success: false, message: 'You are not assigned to this class/section' });
     }
  
     const targetDate = new Date(date);
@@ -141,7 +159,7 @@ exports.getClassAttendance = async (req, res) => {
 };
  
 // @route POST /api/attendance/mark
-// @access Protected - school_admin, teacher
+// @access Protected - teacher
 // Body: { class, section, date, records: [{ studentId, status }] }
 // Upserts one attendance document per student for that date (idempotent —
 // re-submitting the same day overwrites rather than duplicating).
@@ -150,6 +168,10 @@ exports.markAttendance = async (req, res) => {
     const { class: className, section, date, records } = req.body;
     if (!className || !section || !date || !Array.isArray(records) || records.length === 0) {
       return res.status(400).json({ success: false, message: 'class, section, date and records[] are required' });
+    }
+
+    if (!(await teacherOwnsClass(req, className, section))) {
+      return res.status(403).json({ success: false, message: 'You are not assigned to this class/section' });
     }
  
     const targetDate = new Date(date);
@@ -256,4 +278,3 @@ exports.getClassSummary = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
- 

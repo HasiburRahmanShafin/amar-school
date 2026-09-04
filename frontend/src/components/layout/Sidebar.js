@@ -44,16 +44,17 @@ const NAV_ITEMS = {
     { label: 'Applicants',      to: '/admin/admissions/applicants',     icon: 'applicants' },
     { label: 'Photo Gallery',   to: '/admin/gallery',                   icon: 'gallery'    },
     { label: 'Website Builder', to: '/admin/website-builder',           icon: 'website'    },
-    { label: 'Attendance',      to: '/admin/attendance',                icon: 'attendance' },
+
     { label: 'Financial Reports', to: '/admin/financial-reports',       icon: 'financial'  },
     { label: 'School Profile',  to: '/admin/profile',                   icon: 'profile'    },
     { label: 'Subscription',    to: '/admin/subscription',              icon: 'subscription' },
   ],
-  teacher: [
-    { label: 'Dashboard',        to: '/teacher/dashboard',    icon: 'dashboard' },
-    { label: 'Mark Entry Sheet', to: '/teacher/marks',        icon: 'marks'     },
-    { label: 'Exam Routine',     to: '/student/exam-routine', icon: 'exam'      },
-    { label: 'My Profile',       to: '/teacher/profile',      icon: 'profile'   },
+    teacher: [
+    { label: 'Dashboard',        to: '/teacher/dashboard',    icon: 'dashboard'  },
+    { label: 'Attendance',       to: '/teacher/attendance',   icon: 'attendance' },
+    { label: 'Mark Entry Sheet', to: '/teacher/marks',        icon: 'marks'      },
+    { label: 'Exam Routine',     to: '/student/exam-routine', icon: 'exam'       },
+    { label: 'My Profile',       to: '/teacher/profile',      icon: 'profile'    },
   ],
   student: [
     { label: 'Exam Routine',     to: '/student/exam-routine', icon: 'exam'      },

@@ -55,6 +55,13 @@ export default function TeacherDashboard() {
             </div>
             <div className="flex items-center gap-3">
               <Link
+                to="/teacher/attendance"
+                id="take-attendance-quick-btn"
+                className="px-5 py-3 rounded-xl bg-white/15 text-white font-bold text-xs shadow-lg border border-white/30 backdrop-blur-md hover:bg-white/25 transition-all hover:scale-105 active:scale-95"
+              >
+                ✅ Take Attendance
+              </Link>
+              <Link
                 to="/teacher/marks"
                 id="enter-marks-quick-btn"
                 className="px-5 py-3 rounded-xl bg-white text-slate-800 font-bold text-xs shadow-lg hover:bg-slate-100 transition-all hover:scale-105 active:scale-95"
@@ -183,6 +190,18 @@ export default function TeacherDashboard() {
 
             {/* Quick Actions Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Link
+                to="/teacher/attendance"
+                className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:border-emerald-300 dark:hover:border-emerald-700 transition-all group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
+                  ✅
+                </div>
+                <h3 className="font-bold text-sm text-slate-800 dark:text-white">Take Attendance</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Mark daily attendance for your assigned classes and sections.
+                </p>
+              </Link>
               <Link
                 to="/teacher/marks"
                 className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 transition-all group"

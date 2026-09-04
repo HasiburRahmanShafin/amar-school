@@ -31,7 +31,7 @@ import CreateParentAccount from '../pages/admin/CreateParentAccount';
 import StudentExamRoutine from '../pages/student/StudentExamRoutine';
 import ExamManager from '../pages/admin/ExamManager';
 import RoutineManager from '../pages/admin/RoutineManager';
-import AttendanceCollection from '../pages/admin/AttendanceCollection';
+import AttendanceCollection from '../pages/teacher/AttendanceCollection';
 import MarkEntrySheet from '../pages/teacher/MarkEntrySheet';
 import ResultManager from '../pages/admin/ResultManager';
 import StudentResults from '../pages/student/StudentResults';
@@ -69,7 +69,6 @@ function AppRoutes() {
       <Route path="/admin/exams" element={<ProtectedRoute allowedRoles={['school_admin']}><ExamManager /></ProtectedRoute>} />
       <Route path="/admin/routines" element={<ProtectedRoute allowedRoles={['school_admin']}><RoutineManager /></ProtectedRoute>} />
       <Route path="/admin/results" element={<ProtectedRoute allowedRoles={['school_admin']}><ResultManager /></ProtectedRoute>} />
-      <Route path="/admin/attendance" element={<ProtectedRoute allowedRoles={['school_admin']}><AttendanceCollection /></ProtectedRoute>} />
       
       <Route path="/admin/financial-reports" element={<ProtectedRoute allowedRoles={['school_admin']}><FinancialReports /></ProtectedRoute>} />
       <Route path="/admin/profile" element={<ProtectedRoute allowedRoles={['school_admin']}><SchoolProfile /></ProtectedRoute>} />
@@ -80,6 +79,7 @@ function AppRoutes() {
       <Route path="/teacher/marks" element={<ProtectedRoute allowedRoles={['teacher', 'school_admin']}><MarkEntrySheet /></ProtectedRoute>} />
       <Route path="/teacher/exam-routine" element={<ProtectedRoute allowedRoles={['teacher', 'school_admin']}><StudentExamRoutine /></ProtectedRoute>} />
       <Route path="/teacher/profile" element={<ProtectedRoute allowedRoles={['teacher', 'school_admin']}><MyProfile /></ProtectedRoute>} />
+      <Route path="/teacher/attendance" element={<ProtectedRoute allowedRoles={['teacher']}><AttendanceCollection /></ProtectedRoute>} />
 
       {/* Parent Routes */}
       <Route path="/parent/child-profile" element={<ProtectedRoute allowedRoles={['parent']}><ChildProfile /></ProtectedRoute>} />
