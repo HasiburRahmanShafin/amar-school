@@ -12,6 +12,9 @@ const EDITABLE_FIELDS = [
   'socialLinks',
   'academicCalendar',
   'location',
+  'address',
+  'phone',
+  'email',
 ];
 
 // @route GET /api/website/settings

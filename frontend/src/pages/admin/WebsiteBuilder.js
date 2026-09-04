@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as websiteApi from '../../api/websiteApi';
 import { uploadImage } from '../../api/uploadApi';
-import { searchAddress } from '../../api/geocodeApi';
+import { searchAddress, reverseGeocode } from '../../api/geocodeApi';
 import LeafletMap from '../../components/LeafletMap';
 
 const emptyForm = {
@@ -11,6 +11,9 @@ const emptyForm = {
   welcomeMessage: '',
   principalName: '',
   principalMessage: '',
+  address: '',
+  phone: '',
+  email: '',
   socialLinks: [],
   academicCalendar: [],
   location: { lat: null, lng: null, displayAddress: '' },
@@ -45,6 +48,9 @@ function WebsiteBuilder() {
           welcomeMessage: school.welcomeMessage || '',
           principalName: school.principalName || '',
           principalMessage: school.principalMessage || '',
+          address: school.address || '',
+          phone: school.phone || '',
+          email: school.email || '',
           socialLinks: school.socialLinks || [],
           academicCalendar: (school.academicCalendar || []).map((event) => ({
             ...event,
@@ -136,7 +142,11 @@ function WebsiteBuilder() {
     setMessage(null);
     try {
       const result = await searchAddress(addressQuery);
-      setForm((prev) => ({ ...prev, location: result }));
+      setForm((prev) => ({
+        ...prev,
+        location: result,
+        address: prev.address || result.displayAddress,
+      }));
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
     } finally {
@@ -144,8 +154,16 @@ function WebsiteBuilder() {
     }
   };
 
-  const handleMapLocationChange = (lat, lng) => {
+  const handleMapLocationChange = async (lat, lng) => {
     setForm((prev) => ({ ...prev, location: { ...prev.location, lat, lng } }));
+    const addr = await reverseGeocode(lat, lng);
+    if (addr) {
+      setForm((prev) => ({
+        ...prev,
+        location: { ...prev.location, lat, lng, displayAddress: addr },
+        address: prev.address || addr,
+      }));
+    }
   };
 
   // ---- Save everything ----
@@ -248,6 +266,45 @@ function WebsiteBuilder() {
                 rows={3}
                 className="w-full border rounded px-3 py-2"
               />
+            </section>
+
+            {/* Contact Details */}
+            <section>
+              <h2 className="font-semibold mb-3">Contact Details</h2>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Campus Physical Address</label>
+                  <input
+                    type="text"
+                    value={form.address}
+                    onChange={(e) => setForm({ ...form, address: e.target.value })}
+                    className="w-full border rounded px-3 py-2 text-sm"
+                    placeholder="e.g. House 12, Road 5, Dhanmondi, Dhaka"
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Contact Phone</label>
+                    <input
+                      type="text"
+                      value={form.phone}
+                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                      className="w-full border rounded px-3 py-2 text-sm"
+                      placeholder="e.g. +880 1712-345678"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Official Email</label>
+                    <input
+                      type="email"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      className="w-full border rounded px-3 py-2 text-sm"
+                      placeholder="e.g. info@school.edu.bd"
+                    />
+                  </div>
+                </div>
+              </div>
             </section>
 
             {/* Social links */}
@@ -396,6 +453,15 @@ function WebsiteBuilder() {
                   {form.socialLinks.map((link, i) => (
                     <span key={i}>{link.platform}</span>
                   ))}
+                </div>
+              )}
+
+              {(form.address || form.phone || form.email) && (
+                <div className="mb-4 p-3 bg-gray-50 rounded border text-xs text-gray-600 space-y-1">
+                  <h4 className="font-bold text-gray-700 uppercase tracking-wider text-[10px]">Contact Info</h4>
+                  {form.address && <p><strong>Address:</strong> {form.address}</p>}
+                  {form.phone && <p><strong>Phone:</strong> {form.phone}</p>}
+                  {form.email && <p><strong>Email:</strong> {form.email}</p>}
                 </div>
               )}
 

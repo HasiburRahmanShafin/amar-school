@@ -19,6 +19,7 @@ function SchoolWebsite() {
   const { subdomain } = useParams();
   const [school, setSchool] = useState(null);
   const [gallery, setGallery] = useState([]);
+  const [galleryCategory, setGalleryCategory] = useState('all');
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -227,15 +228,68 @@ function SchoolWebsite() {
         {/* Photo gallery */}
         {gallery.length > 0 && (
           <section className="bg-white rounded shadow p-6 mt-6">
-            <h2 className="font-semibold mb-4">Photo Gallery</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {gallery.map((img) => (
-                <div key={img._id} className="rounded overflow-hidden">
-                  <img src={img.imageUrl} alt={img.caption || img.category} className="w-full h-28 object-cover" />
-                  {img.caption && <p className="text-xs text-gray-500 mt-1">{img.caption}</p>}
-                </div>
-              ))}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <div>
+                <h2 className="font-semibold text-lg">Photo Gallery</h2>
+                <p className="text-xs text-gray-500">Showcasing campus facilities, events, and student activities</p>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { id: 'all', label: 'All Photos' },
+                  { id: 'facilities', label: 'Campus Facilities' },
+                  { id: 'events', label: 'Events' },
+                  { id: 'activities', label: 'Student Activities' },
+                ].map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setGalleryCategory(cat.id)}
+                    className={`text-xs px-3 py-1.5 rounded-full font-medium transition-colors ${
+                      galleryCategory === cat.id
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {(() => {
+              const visibleImages =
+                galleryCategory === 'all'
+                  ? gallery
+                  : gallery.filter((img) => (img.category || '').toLowerCase() === galleryCategory);
+
+              if (visibleImages.length === 0) {
+                return (
+                  <p className="text-xs text-gray-400 py-6 text-center">
+                    No photos found in this category.
+                  </p>
+                );
+              }
+
+              return (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {visibleImages.map((img) => (
+                    <div key={img._id} className="rounded-lg overflow-hidden border bg-gray-50 shadow-sm group">
+                      <img
+                        src={img.imageUrl}
+                        alt={img.caption || img.category}
+                        className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-200"
+                      />
+                      <div className="p-2 bg-white">
+                        <span className="text-[10px] uppercase font-bold text-blue-600 tracking-wider">
+                          {img.category || 'General'}
+                        </span>
+                        {img.caption && <p className="text-xs text-gray-600 truncate mt-0.5">{img.caption}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </section>
         )}
 
@@ -263,39 +317,44 @@ function SchoolWebsite() {
           </section>
         )}
 
-        {/* Contact + location */}
+        {/* Contact + location with OpenStreetMap Navigation */}
         <section className="bg-white rounded shadow p-6 mt-6 mb-10">
-          <h2 className="font-semibold mb-4">Contact & Location</h2>
+          <h2 className="font-semibold mb-4 text-lg">Contact & Location</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="text-sm text-gray-600 space-y-2">
-              <p><strong>Address:</strong> {school.address}</p>
-              <p><strong>Phone:</strong> {school.phone}</p>
-              <p><strong>Email:</strong> {school.email}</p>
+            <div className="text-sm text-gray-600 space-y-3">
+              <div className="p-4 bg-gray-50 rounded-xl space-y-2 border">
+                <p><strong>Address:</strong> {school.address}</p>
+                <p><strong>Phone:</strong> {school.phone}</p>
+                <p><strong>Email:</strong> {school.email}</p>
+              </div>
 
               {school.socialLinks?.length > 0 && (
-                <div className="pt-2">
-                  {school.socialLinks.map((link, i) => (
-                    <a
-                      key={i}
-                      href={link.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-blue-600 underline mr-3"
-                    >
-                      {link.platform}
-                    </a>
-                  ))}
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Connect With Us</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {school.socialLinks.map((link, i) => (
+                      <a
+                        key={i}
+                        href={link.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-semibold transition-colors"
+                      >
+                        {link.platform}
+                      </a>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
 
-            {school.location?.lat && school.location?.lng && (
+            <div>
               <DirectionsPanel
-                schoolLat={school.location.lat}
-                schoolLng={school.location.lng}
+                schoolLat={school.location?.lat}
+                schoolLng={school.location?.lng}
                 schoolName={school.name}
               />
-            )}
+            </div>
           </div>
         </section>
       </div>

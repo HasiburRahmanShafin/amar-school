@@ -223,12 +223,12 @@ exports.getMarkEntrySheet = async (req, res, next) => {
     const passMarks = matchedSlot?.passMarks || 33;
 
     // 2. Fetch all active enrolled students in this class and section
-        const studentFilter = {
+    const studentFilter = {
       schoolId,
       currentClass: exactCaseInsensitive(className),
       status: 'active',
     };
-    if (section && section !== 'All') {
+    if (section && section.trim().toLowerCase() !== 'all') {
       studentFilter.section = exactCaseInsensitive(section);
     }
 
@@ -642,12 +642,11 @@ exports.getStudentResults = async (req, res, next) => {
     let { studentId, rollNumber, className, examId, academicTerm } = req.query;
 
     // If logged in as student or parent, resolve student record
-    if (req.user.role === 'student' || req.user.role === 'parent') {
+    if (req.user.role === 'student' || req.user.role === 'parent' || (!className && !studentId)) {
       const studentProfile = await Student.findOne({
         schoolId,
-        $or: [
+          ...(req.user.id ? [{ studentUserId: req.user.id }, { userId: req.user.id }] : []),
           { parentUserId: req.user.id },
-          ...(req.user.id ? [{ userId: req.user.id }] : []),
           ...(req.user.email ? [{ guardianEmail: req.user.email }] : []),
           ...(studentId ? [{ studentId }] : []),
         ],
@@ -796,9 +795,28 @@ exports.getStudentResults = async (req, res, next) => {
 exports.getReportCardData = async (req, res, next) => {
   try {
     const schoolId = getSchoolId(req);
-    const { examId, studentId } = req.query;
+    let { examId, studentId } = req.query;
 
-    if (!examId || !studentId) {
+    if (!examId) {
+      return res.status(400).json({ success: false, message: 'Exam ID is required' });
+    }
+
+    // Auto-resolve studentId if not provided for student or parent
+    if (!studentId && (req.user.role === 'student' || req.user.role === 'parent')) {
+      const studentDoc = await Student.findOne({
+        schoolId,
+        $or: [
+          ...(req.user.id ? [{ studentUserId: req.user.id }] : []),
+          { parentUserId: req.user.id },
+          ...(req.user.email ? [{ guardianEmail: req.user.email }] : []),
+        ],
+      });
+      if (studentDoc) {
+        studentId = studentDoc.studentId;
+      }
+    }
+
+    if (!studentId) {
       return res.status(400).json({ success: false, message: 'Exam ID and Student ID are required' });
     }
 
