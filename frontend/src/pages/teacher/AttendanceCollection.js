@@ -1,9 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import * as attendanceApi from '../../api/AttendanceApi';
-import { api as studentApi } from '../../api/StudentApi';
-import AdminLayout from '../../components/layout/AdminLayout';
- 
+import * as resultApi from '../../api/resultApi';
+import TeacherLayout from '../../components/layout/TeacherLayout';
+
 const STATUS_OPTIONS = [
   { value: 'present', label: 'Present', color: 'bg-emerald-100 text-emerald-700 border-emerald-300' },
   { value: 'late', label: 'Late', color: 'bg-amber-100 text-amber-700 border-amber-300' },
@@ -25,15 +25,16 @@ export default function AttendanceCollection() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
  
-  // Build a distinct class/section list from the student roll — reuses the
-  // existing /students endpoint rather than requiring a separate meta API.
+    // Only show the classes/sections this teacher is actually assigned to
+  // teach (a teacher should not be able to take attendance for a class
+  // that isn't theirs).
   useEffect(() => {
-    studentApi.get('/students').then((res) => {
-      const list = res.data || [];
+    resultApi.getTeacherClasses().then((res) => {
+      const assigned = res.data?.assignedClasses || [];
       const seen = new Map();
-      list.forEach((s) => {
-        const key = `${s.currentClass}|||${s.section}`;
-        if (!seen.has(key)) seen.set(key, { className: s.currentClass, section: s.section });
+      assigned.forEach((c) => {
+        const key = `${c.class}|||${c.section}`;
+        if (!seen.has(key)) seen.set(key, { className: c.class, section: c.section });
       });
       const options = Array.from(seen.values()).sort((a, b) => a.className.localeCompare(b.className));
       setClasses(options);
@@ -92,13 +93,13 @@ export default function AttendanceCollection() {
   const markedCount = roster.filter((r) => r.status).length;
  
   return (
-    <AdminLayout>
+    <TeacherLayout>
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Attendance Collection</h1>
           <p className="text-sm text-slate-500 mt-1">Mark daily attendance for a class and section.</p>
         </div>
-        <Link to="/admin/dashboard" className="text-sm text-blue-600 hover:underline">
+        <Link to="/teacher/dashboard" className="text-sm text-blue-600 hover:underline">
           &larr; Back to Dashboard
         </Link>
       </div>
@@ -215,7 +216,7 @@ export default function AttendanceCollection() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </TeacherLayout>
   );
 }
  

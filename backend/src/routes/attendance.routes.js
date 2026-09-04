@@ -11,9 +11,8 @@ const authorize = (...roles) => (req, res, next) => {
   next();
 };
  
-router.get('/class', protect, attachTenant, authorize('school_admin', 'teacher'), attendanceCtrl.getClassAttendance);
-router.post('/mark', protect, attachTenant, authorize('school_admin', 'teacher'), attendanceCtrl.markAttendance);
+router.get('/class', protect, attachTenant, authorize('teacher'), attendanceCtrl.getClassAttendance);
+router.post('/mark', protect, attachTenant, authorize('teacher'), attendanceCtrl.markAttendance);
 router.get('/summary', protect, attachTenant, authorize('school_admin', 'teacher'), attendanceCtrl.getClassSummary);
- 
 module.exports = router;
  
