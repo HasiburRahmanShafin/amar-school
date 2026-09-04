@@ -18,8 +18,7 @@ const EDITABLE_FIELDS = [
 // @access Protected - school_admin (their own school, via req.schoolId)
 const getMyWebsiteSettings = async (req, res, next) => {
   try {
-    const schoolId = req.schoolId || req.user?.schoolId;
-    const school = await School.findById(schoolId);
+    const school = await School.findById(req.schoolId);
     if (!school) return res.status(404).json({ message: 'School not found' });
     res.json(school);
   } catch (error) {
@@ -31,8 +30,7 @@ const getMyWebsiteSettings = async (req, res, next) => {
 // @access Protected - school_admin
 const updateWebsiteSettings = async (req, res, next) => {
   try {
-    const schoolId = req.schoolId || req.user?.schoolId;
-    const school = await School.findById(schoolId);
+    const school = await School.findById(req.schoolId);
     if (!school) return res.status(404).json({ message: 'School not found' });
 
     EDITABLE_FIELDS.forEach((field) => {

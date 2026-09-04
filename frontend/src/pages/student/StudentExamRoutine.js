@@ -386,7 +386,7 @@ export default function StudentExamRoutine() {
 
           {/* Next Exam Live Countdown Widget */}
           {!countdown.isFinished && countdown.nextSubject && (
-            <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white shadow-xl shadow-indigo-600/20 relative overflow-hidden">
+            <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-indigo-800 to-slate-800 text-white shadow-lg relative overflow-hidden">
               <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-white/5 transform skew-x-12 pointer-events-none" />
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
                 <div>

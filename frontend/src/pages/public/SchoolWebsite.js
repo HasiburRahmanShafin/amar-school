@@ -4,7 +4,7 @@ import * as websiteApi from '../../api/websiteApi';
 import * as galleryApi from '../../api/galleryApi';
 import * as noticeApi from '../../api/noticeApi';
 import * as routineApi from '../../api/routineApi';
-import DirectionsPanel from '../../components/DirectionsPanel';
+import LeafletMap from '../../components/LeafletMap';
 
 const DAY_LABELS = {
   saturday: 'Saturday',
@@ -77,6 +77,11 @@ function SchoolWebsite() {
   const sortedCalendar = [...(school.academicCalendar || [])].sort(
     (a, b) => new Date(a.date) - new Date(b.date)
   );
+
+  const directionsUrl =
+    school.location?.lat && school.location?.lng
+      ? `https://www.openstreetmap.org/directions?to=${school.location.lat}%2C${school.location.lng}`
+      : null;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -287,14 +292,21 @@ function SchoolWebsite() {
                   ))}
                 </div>
               )}
+
+              {directionsUrl && (
+                <a
+                  href={directionsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-block mt-3 bg-blue-600 text-white text-sm px-4 py-2 rounded"
+                >
+                  Get Directions
+                </a>
+              )}
             </div>
 
             {school.location?.lat && school.location?.lng && (
-              <DirectionsPanel
-                schoolLat={school.location.lat}
-                schoolLng={school.location.lng}
-                schoolName={school.name}
-              />
+              <LeafletMap lat={school.location.lat} lng={school.location.lng} height="220px" />
             )}
           </div>
         </section>

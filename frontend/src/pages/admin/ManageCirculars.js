@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { admissionApi } from '../../api/admissionApi';
 import BackButton from '../../components/BackButton';
-import DarkModeToggle, { useDarkMode } from '../../components/DarkModeToggle';
+import DarkModeToggle from '../../components/DarkModeToggle';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../components/Toast';
 
 // NOTE: minimal placeholder standing in for Fahmida's Admission Management UI
@@ -19,7 +20,7 @@ export default function ManageCirculars() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
-  const [isDark, toggleDark] = useDarkMode();
+  const { isDark, toggleTheme } = useAuth();
   const { showToast } = useToast();
 
   const fetchCirculars = () => {
@@ -78,16 +79,16 @@ export default function ManageCirculars() {
     }
   };
 
-  const pageBg = isDark ? 'bg-gray-900' : 'bg-blue-50';
-  const cardBg = isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-blue-100';
-  const heading = isDark ? 'text-gray-100' : 'text-blue-900';
-  const label = isDark ? 'text-gray-300' : 'text-blue-900';
-  const subText = isDark ? 'text-gray-400' : 'text-gray-500';
-  const inputClass = `w-full border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-    isDark ? 'bg-gray-900 border-gray-700 text-gray-100' : 'border-blue-200'
+  const pageBg = isDark ? 'bg-slate-950' : 'bg-slate-50';
+  const cardBg = isDark ? 'bg-slate-800/60 border-slate-700/60' : 'bg-white border-slate-200/80';
+  const heading = isDark ? 'text-white' : 'text-slate-800';
+  const label = isDark ? 'text-slate-300' : 'text-indigo-900';
+  const subText = isDark ? 'text-slate-400' : 'text-slate-500';
+  const inputClass = `w-full border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+    isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'border-indigo-200'
   }`;
   const statusColors = {
-    draft: isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600',
+    draft: isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-600',
     published: isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700',
     closed: isDark ? 'bg-red-900 text-red-300' : 'bg-red-100 text-red-700',
   };
@@ -97,14 +98,14 @@ export default function ManageCirculars() {
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-2">
           <BackButton isDark={isDark} />
-          <DarkModeToggle isDark={isDark} toggleDark={toggleDark} />
+          <DarkModeToggle isDark={isDark} toggleDark={toggleTheme} />
         </div>
 
         <div className="flex items-center justify-between mb-6">
           <h1 className={`text-2xl font-bold ${heading}`}>Admission Circulars</h1>
           <button
             onClick={() => setShowForm((v) => !v)}
-            className="bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-800"
+            className="bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-indigo-800"
           >
             {showForm ? 'Cancel' : '+ New circular'}
           </button>
@@ -148,7 +149,7 @@ export default function ManageCirculars() {
                 </select>
               </div>
             </div>
-            <button type="submit" disabled={submitting} className="w-full bg-blue-700 text-white font-medium py-3 rounded-lg hover:bg-blue-800 disabled:opacity-50">
+            <button type="submit" disabled={submitting} className="w-full bg-indigo-700 text-white font-medium py-3 rounded-lg hover:bg-indigo-800 disabled:opacity-50">
               {submitting ? 'Saving…' : 'Create circular'}
             </button>
           </form>
@@ -171,7 +172,7 @@ export default function ManageCirculars() {
               <div className="flex flex-wrap gap-2">
                 <Link
                   to={`/admin/admissions/applicants?circularId=${c._id}`}
-                  className={`text-xs font-medium px-3 py-1.5 rounded-lg border ${isDark ? 'border-gray-600 text-gray-200 hover:bg-gray-800' : 'border-blue-300 text-blue-700 hover:bg-blue-50'}`}
+                  className={`text-xs font-medium px-3 py-1.5 rounded-lg border ${isDark ? 'border-slate-600 text-slate-200 hover:bg-slate-800' : 'border-indigo-300 text-indigo-700 hover:bg-indigo-50'}`}
                 >
                   View applicants
                 </Link>

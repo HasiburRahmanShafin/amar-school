@@ -20,8 +20,12 @@ const studentDashboardRoutes = require('./routes/studentDashboard.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
 const parentAccountRoutes = require('./routes/parentAccount.routes');
 const attendanceRoutes = require('./routes/attendance.routes');
+const notificationRoutes = require('./routes/notification.routes');
 
 const financialRoutes = require('./routes/financial.routes');
+
+const schoolRoutes = require('./routes/school.routes');
+const subscriptionRoutes = require('./routes/subscription.routes');
 
 const app = express();
 
@@ -53,7 +57,11 @@ app.use('/api/student-dashboard', studentDashboardRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/parent-accounts', parentAccountRoutes);
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use('/api/financial', financialRoutes);
+
+app.use('/api/school', schoolRoutes);
+app.use('/api/subscription', subscriptionRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });

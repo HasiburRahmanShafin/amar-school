@@ -36,6 +36,9 @@ import MarkEntrySheet from '../pages/teacher/MarkEntrySheet';
 import ResultManager from '../pages/admin/ResultManager';
 import StudentResults from '../pages/student/StudentResults';
 import FinancialReports from '../pages/admin/FinancialReports';
+import SchoolProfile from '../pages/admin/SchoolProfile';
+import Subscription from '../pages/admin/Subscription';
+import ProfileChangeRequests from '../pages/superadmin/ProfileChangeRequests';
 
 function AppRoutes() {
   return (
@@ -46,7 +49,7 @@ function AppRoutes() {
 
       {/* Student Routes */}
       <Route path="/student/dashboard" element={<ProtectedRoute allowedRoles={['parent', 'student']}><StudentDashboard /></ProtectedRoute>} />
-      <Route path="/student/exam-routine" element={<ProtectedRoute allowedRoles={['parent', 'student', 'teacher', 'school_admin']}><StudentExamRoutine /></ProtectedRoute>} />
+      <Route path="/student/exam-routine" element={<ProtectedRoute allowedRoles={['parent', 'student']}><StudentExamRoutine /></ProtectedRoute>} />
       <Route path="/student/results" element={<ProtectedRoute allowedRoles={['student', 'school_admin', 'teacher', 'parent']}><StudentResults /></ProtectedRoute>} />
       <Route path="/student/profile" element={<ProtectedRoute allowedRoles={['student', 'school_admin', 'teacher', 'parent']}><StudentExamRoutine /></ProtectedRoute>} />
 
@@ -69,6 +72,8 @@ function AppRoutes() {
       <Route path="/admin/attendance" element={<ProtectedRoute allowedRoles={['school_admin']}><AttendanceCollection /></ProtectedRoute>} />
       
       <Route path="/admin/financial-reports" element={<ProtectedRoute allowedRoles={['school_admin']}><FinancialReports /></ProtectedRoute>} />
+      <Route path="/admin/profile" element={<ProtectedRoute allowedRoles={['school_admin']}><SchoolProfile /></ProtectedRoute>} />
+      <Route path="/admin/subscription" element={<ProtectedRoute allowedRoles={['school_admin']}><Subscription /></ProtectedRoute>} />
 
       {/* Teacher Routes */}
       <Route path="/teacher/dashboard" element={<ProtectedRoute allowedRoles={['teacher', 'school_admin']}><TeacherDashboard /></ProtectedRoute>} />
@@ -86,6 +91,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['super_admin']}>
             <VerifySchools />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/superadmin/profile-changes"
+        element={
+          <ProtectedRoute allowedRoles={['super_admin']}>
+            <ProfileChangeRequests />
           </ProtectedRoute>
         }
       />

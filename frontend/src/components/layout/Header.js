@@ -1,5 +1,7 @@
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { api as notificationApi } from '../../api/NotificationApi';
 
 const SunIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4">
@@ -43,6 +45,69 @@ export default function Header({ sidebarOpen, onToggleSidebar }) {
   const { user, logoutUser, isDark, toggleTheme } = useAuth();
   const navigate = useNavigate();
 
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifRef = useRef(null);
+
+  const fetchNotifications = useCallback(() => {
+    if (!user) return;
+    notificationApi
+      .get('/notifications')
+      .then((res) => {
+        setNotifications(res.data || []);
+        setUnreadCount(res.unreadCount || 0);
+      })
+      .catch(() => {});
+  }, [user]);
+
+  // Poll every 60s so a new alert (e.g. an attendance notification) shows
+  // up on the bell without the user needing to refresh the page.
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 60000);
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
+
+  // Close the dropdown on an outside click.
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleToggleNotifications = () => {
+    setNotifOpen((prev) => !prev);
+  };
+
+  const handleNotificationClick = async (notification) => {
+    if (!notification.read) {
+      setNotifications((prev) => prev.map((n) => (n._id === notification._id ? { ...n, read: true } : n)));
+      setUnreadCount((prev) => Math.max(prev - 1, 0));
+      notificationApi.patch(`/notifications/${notification._id}/read`).catch(() => {});
+    }
+    setNotifOpen(false);
+    if (notification.link) navigate(notification.link);
+  };
+
+  const handleMarkAllRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setUnreadCount(0);
+    notificationApi.patch('/notifications/read-all').catch(() => {});
+  };
+
+  const timeAgo = (dateStr) => {
+    const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+    if (seconds < 60) return 'just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
+  };
+
   const handleLogout = () => {
     logoutUser();
     navigate('/login');
@@ -52,12 +117,16 @@ export default function Header({ sidebarOpen, onToggleSidebar }) {
     super_admin: 'Super Admin',
     school_admin: 'School Admin',
     teacher: 'Teacher',
+    parent: 'Parent',
+    student: 'Student',
   }[user?.role] || 'User';
 
   const roleColor = {
     super_admin: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
     school_admin: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
     teacher: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+    parent: 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300',
+    student: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
   }[user?.role] || 'bg-gray-100 text-gray-600';
 
   const initials = user?.name
@@ -110,13 +179,64 @@ export default function Header({ sidebarOpen, onToggleSidebar }) {
       {/* Right side actions */}
       <div className="flex items-center gap-1.5 sm:gap-2">
         {/* Notifications bell */}
-        <button
-          className={`p-2 rounded-lg transition-colors duration-200 relative
-            ${isDark ? 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'}`}
-          aria-label="Notifications"
-        >
-          <BellIcon />
-        </button>
+        <div className="relative" ref={notifRef}>
+          <button
+            onClick={handleToggleNotifications}
+            className={`p-2 rounded-lg transition-colors duration-200 relative
+              ${isDark ? 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'}`}
+            aria-label="Notifications"
+          >
+            <BellIcon />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+
+          {notifOpen && (
+            <div
+              className={`absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-xl shadow-lg border z-50
+                ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'}`}
+            >
+              <div className={`flex items-center justify-between px-4 py-3 border-b ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+                <span className={`text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>Notifications</span>
+                {unreadCount > 0 && (
+                  <button onClick={handleMarkAllRead} className="text-xs font-medium text-indigo-500 hover:underline">
+                    Mark all read
+                  </button>
+                )}
+              </div>
+
+              {notifications.length === 0 ? (
+                <p className={`px-4 py-6 text-sm text-center ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                  No notifications yet.
+                </p>
+              ) : (
+                <div className={`divide-y ${isDark ? 'divide-slate-800' : 'divide-slate-100'}`}>
+                  {notifications.map((n) => (
+                    <button
+                      key={n._id}
+                      onClick={() => handleNotificationClick(n)}
+                      className={`w-full text-left px-4 py-3 transition-colors duration-150
+                        ${n.read ? '' : (isDark ? 'bg-indigo-950/40' : 'bg-indigo-50/60')}
+                        ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-50'}`}
+                    >
+                      <div className="flex items-start gap-2">
+                        {!n.read && <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-indigo-500 flex-shrink-0" />}
+                        <div className={n.read ? 'ml-3.5' : ''}>
+                          <p className={`text-sm font-medium ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{n.title}</p>
+                          <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{n.message}</p>
+                          <p className={`text-[10px] mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{timeAgo(n.createdAt)}</p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Dark mode toggle */}
         <button

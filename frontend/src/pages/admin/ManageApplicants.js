@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { admissionApi } from '../../api/admissionApi';
 import BackButton from '../../components/BackButton';
-import DarkModeToggle, { useDarkMode } from '../../components/DarkModeToggle';
+import DarkModeToggle from '../../components/DarkModeToggle';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../components/Toast';
 
 // NOTE: minimal placeholder standing in for Fahmida's Admission Management UI
@@ -16,7 +17,7 @@ export default function ManageApplicants() {
   const [applicants, setApplicants] = useState([]);
   const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(true);
-  const [isDark, toggleDark] = useDarkMode();
+  const { isDark, toggleTheme } = useAuth();
   const { showToast } = useToast();
 
   const fetchApplicants = () => {
@@ -55,16 +56,16 @@ export default function ManageApplicants() {
     }
   };
 
-  const pageBg = isDark ? 'bg-gray-900' : 'bg-blue-50';
-  const cardBg = isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-blue-100';
-  const heading = isDark ? 'text-gray-100' : 'text-blue-900';
-  const subText = isDark ? 'text-gray-400' : 'text-gray-500';
+  const pageBg = isDark ? 'bg-slate-950' : 'bg-slate-50';
+  const cardBg = isDark ? 'bg-slate-800/60 border-slate-700/60' : 'bg-white border-slate-200/80';
+  const heading = isDark ? 'text-white' : 'text-slate-800';
+  const subText = isDark ? 'text-slate-400' : 'text-slate-500';
   const inputStyle = isDark
-    ? 'bg-gray-800 border-gray-700 text-gray-100 focus:ring-blue-500'
-    : 'border-blue-200 focus:ring-blue-500';
-  const divider = isDark ? 'divide-gray-700' : 'divide-blue-50';
+    ? 'bg-slate-800 border-slate-700 text-slate-100 focus:ring-indigo-500'
+    : 'border-indigo-200 focus:ring-indigo-500';
+  const divider = isDark ? 'divide-slate-700' : 'divide-indigo-50';
   const statusColors = {
-    pending: isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600',
+    pending: isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-600',
     reviewed: isDark ? 'bg-amber-900 text-amber-300' : 'bg-amber-100 text-amber-700',
     approved: isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700',
     rejected: isDark ? 'bg-red-900 text-red-300' : 'bg-red-100 text-red-700',
@@ -75,7 +76,7 @@ export default function ManageApplicants() {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-2">
           <BackButton isDark={isDark} />
-          <DarkModeToggle isDark={isDark} toggleDark={toggleDark} />
+          <DarkModeToggle isDark={isDark} toggleDark={toggleTheme} />
         </div>
 
         <div className="flex items-center justify-between mb-6">
@@ -112,7 +113,7 @@ export default function ManageApplicants() {
                     key={s}
                     onClick={() => updateStatus(a._id, s)}
                     className={`text-xs font-medium px-3 py-1.5 rounded-lg border capitalize ${
-                      isDark ? 'border-gray-600 text-gray-200 hover:bg-gray-800' : 'border-blue-300 text-blue-700 hover:bg-blue-50'
+                      isDark ? 'border-slate-600 text-slate-200 hover:bg-slate-800' : 'border-indigo-300 text-indigo-700 hover:bg-indigo-50'
                     }`}
                   >
                     Mark {s}
@@ -121,7 +122,7 @@ export default function ManageApplicants() {
                 <button
                   onClick={() => publishResult(a._id)}
                   disabled={a.resultPublished}
-                  className="text-xs font-medium px-3 py-1.5 rounded-lg bg-blue-700 text-white hover:bg-blue-800 disabled:opacity-50"
+                  className="text-xs font-medium px-3 py-1.5 rounded-lg bg-indigo-700 text-white hover:bg-indigo-800 disabled:opacity-50"
                 >
                   {a.resultPublished ? 'Result published' : 'Publish result'}
                 </button>

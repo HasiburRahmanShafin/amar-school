@@ -1,27 +1,28 @@
-# Dependencies
 node_modules/
-backend/node_modules/
-frontend/node_modules/
+**/node_modules/
 
-# Environment variables - NEVER commit real .env files
 .env
-backend/.env
-frontend/.env
+**/.env
 
-# Production build
-frontend/build/
+.env.local
+**/.env.local
 
-# Logs
+.env.development
+**/.env.development
+
+.env.production
+**/.env.production
+
+build/
+**/build/
+
+dist/
+**/dist/
+
+.cache/
+**/.cache/
+
 *.log
 npm-debug.log*
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Editor
-.vscode/
-.idea/
-
-frontend.zip
-file.zip
+yarn-debug.log*
+yarn-error.log*

@@ -73,18 +73,9 @@ exports.getTeacherById = async (req, res) => {
 
 exports.updateTeacher = async (req, res) => {
   try {
-    const allowedFields = [
-      'name', 'email', 'phone', 'photoUrl', 'qualifications',
-      'department', 'dateOfJoining', 'subjects', 'assignedClasses', 'status',
-    ];
-    const updateData = {};
-    for (const key of allowedFields) {
-      if (req.body[key] !== undefined) updateData[key] = req.body[key];
-    }
-
     const teacher = await Teacher.findOneAndUpdate(
       { _id: req.params.id, schoolId: req.user.schoolId },
-      updateData,
+      req.body,
       { new: true, runValidators: true }
     );
     if (!teacher) return res.status(404).json({ success: false, message: 'Teacher not found' });
@@ -147,30 +138,21 @@ exports.createTeacherAccount = async (req, res) => {
       return res.status(409).json({ success: false, message: 'This teacher already has a login account' });
     }
 
+    const existingUser = await User.findOne({ email: teacher.email });
+    if (existingUser) {
+      return res.status(409).json({ success: false, message: 'This email is already registered to another account' });
+    }
+
     const tempPassword = crypto.randomBytes(6).toString('hex');
 
-    const existingUser = await User.findOne({ email: teacher.email });
-    let user;
-    if (existingUser) {
-      // If the account was previously suspended for this teacher/school, reactivate it
-      if (existingUser.role === 'teacher' && String(existingUser.school) === String(req.user.schoolId)) {
-        existingUser.password = tempPassword;
-        existingUser.status = 'active';
-        existingUser.name = teacher.name;
-        user = await existingUser.save();
-      } else {
-        return res.status(409).json({ success: false, message: 'This email is already registered to another account' });
-      }
-    } else {
-      user = await User.create({
-        name: teacher.name,
-        email: teacher.email,
-        password: tempPassword,
-        role: 'teacher',
-        school: req.user.schoolId,
-        status: 'active',
-      });
-    }
+    const user = await User.create({
+      name: teacher.name,
+      email: teacher.email,
+      password: tempPassword,
+      role: 'teacher',
+      school: req.user.schoolId,
+      status: 'active',
+    });
 
     teacher.userId = user._id;
     await teacher.save();

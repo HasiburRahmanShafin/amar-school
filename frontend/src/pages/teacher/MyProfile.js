@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { teacherApi } from '../../api/TeacherApi';
 import { uploadImage } from '../../api/uploadApi';
 import BackButton from '../../components/BackButton';
-import DarkModeToggle, { useDarkMode } from '../../components/DarkModeToggle';
+import DarkModeToggle from '../../components/DarkModeToggle';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../components/Toast';
 
 export default function MyProfile() {
@@ -17,7 +18,7 @@ export default function MyProfile() {
   const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [savingPw, setSavingPw] = useState(false);
 
-  const [isDark, toggleDark] = useDarkMode();
+  const { isDark, toggleTheme } = useAuth();
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -85,13 +86,13 @@ export default function MyProfile() {
     }
   };
 
-  const pageBg = isDark ? 'bg-gray-900' : 'bg-blue-50';
-  const cardBg = isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-blue-100';
-  const heading = isDark ? 'text-gray-100' : 'text-blue-900';
-  const label = isDark ? 'text-gray-300' : 'text-blue-900';
-  const subText = isDark ? 'text-gray-400' : 'text-gray-500';
-  const inputClass = `w-full border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-    isDark ? 'bg-gray-900 border-gray-700 text-gray-100' : 'border-blue-200'
+  const pageBg = isDark ? 'bg-slate-950' : 'bg-slate-50';
+  const cardBg = isDark ? 'bg-slate-800/60 border-slate-700/60' : 'bg-white border-slate-200/80';
+  const heading = isDark ? 'text-white' : 'text-slate-800';
+  const label = isDark ? 'text-slate-300' : 'text-indigo-900';
+  const subText = isDark ? 'text-slate-400' : 'text-slate-500';
+  const inputClass = `w-full border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+    isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'border-indigo-200'
   }`;
 
   if (loading) {
@@ -120,7 +121,7 @@ export default function MyProfile() {
       <div className="max-w-xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <BackButton isDark={isDark} to="/teacher/dashboard" />
-          <DarkModeToggle isDark={isDark} toggleDark={toggleDark} />
+          <DarkModeToggle isDark={isDark} toggleDark={toggleTheme} />
         </div>
 
         <div className={`border rounded-xl shadow-sm p-8 ${cardBg}`}>
@@ -160,14 +161,14 @@ export default function MyProfile() {
           <form onSubmit={saveProfile} className="space-y-4">
             <div className="flex items-center gap-4">
               {photoUrl ? (
-                <img src={photoUrl} alt="Preview" className="w-16 h-16 rounded-full object-cover border border-blue-300" />
+                <img src={photoUrl} alt="Preview" className="w-16 h-16 rounded-full object-cover border border-indigo-300" />
               ) : (
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-semibold ${isDark ? 'bg-gray-700 text-gray-400' : 'bg-blue-100 text-blue-700'}`}>
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-semibold ${isDark ? 'bg-slate-700 text-slate-400' : 'bg-indigo-100 text-indigo-700'}`}>
                   📷
                 </div>
               )}
               <label className={`text-sm font-medium px-4 py-2 rounded-lg border cursor-pointer transition-colors ${
-                isDark ? 'border-gray-600 text-gray-200 hover:bg-gray-800' : 'border-blue-300 text-blue-700 hover:bg-blue-50'
+                isDark ? 'border-slate-600 text-slate-200 hover:bg-slate-800' : 'border-indigo-300 text-indigo-700 hover:bg-indigo-50'
               } ${uploadingPhoto ? 'opacity-50 pointer-events-none' : ''}`}>
                 {uploadingPhoto ? 'Uploading…' : 'Change photo'}
                 <input type="file" accept="image/*" onChange={handlePhotoChange} disabled={uploadingPhoto} className="hidden" />
@@ -182,7 +183,7 @@ export default function MyProfile() {
             <button
               type="submit"
               disabled={savingProfile || uploadingPhoto}
-              className="w-full bg-blue-700 text-white font-medium py-3 rounded-lg hover:bg-blue-800 disabled:opacity-50"
+              className="w-full bg-indigo-700 text-white font-medium py-3 rounded-lg hover:bg-indigo-800 disabled:opacity-50"
             >
               {savingProfile ? 'Saving…' : 'Save changes'}
             </button>
@@ -226,7 +227,7 @@ export default function MyProfile() {
             <button
               type="submit"
               disabled={savingPw}
-              className="w-full bg-blue-700 text-white font-medium py-3 rounded-lg hover:bg-blue-800 disabled:opacity-50"
+              className="w-full bg-indigo-700 text-white font-medium py-3 rounded-lg hover:bg-indigo-800 disabled:opacity-50"
             >
               {savingPw ? 'Updating…' : 'Update password'}
             </button>

@@ -40,7 +40,7 @@ export default function TeacherDashboard() {
     <TeacherLayout>
       <div className="space-y-6">
         {/* Welcome Banner */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-800 p-6 sm:p-8 text-white shadow-xl">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-700 to-slate-900 dark:from-slate-800 dark:to-slate-950 p-6 sm:p-8 text-white shadow-xl">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <span className="inline-block px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-semibold uppercase tracking-wider mb-2 border border-white/20">
@@ -49,7 +49,7 @@ export default function TeacherDashboard() {
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
                 Welcome back, {user?.name}!
               </h1>
-              <p className="text-indigo-100 text-sm mt-1 max-w-xl">
+              <p className="text-slate-300 text-sm mt-1 max-w-xl">
                 Staff ID: <span className="font-mono font-bold text-white">{profile?.teacherId || 'TCH-2026'}</span> · Manage your mark sheets, examine student routines, and track academic results.
               </p>
             </div>
@@ -57,14 +57,14 @@ export default function TeacherDashboard() {
               <Link
                 to="/teacher/marks"
                 id="enter-marks-quick-btn"
-                className="px-5 py-3 rounded-xl bg-white text-indigo-700 font-bold text-xs shadow-lg hover:bg-indigo-50 transition-all hover:scale-105 active:scale-95"
+                className="px-5 py-3 rounded-xl bg-white text-slate-800 font-bold text-xs shadow-lg hover:bg-slate-100 transition-all hover:scale-105 active:scale-95"
               >
                 📝 Enter Subject Marks
               </Link>
             </div>
           </div>
           {/* Decorative background glow */}
-          <div className="absolute right-0 top-0 -mt-10 -mr-10 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute right-0 top-0 -mt-10 -mr-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
         </div>
 
         {/* Overview Stats */}

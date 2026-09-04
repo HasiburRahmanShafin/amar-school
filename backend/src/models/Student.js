@@ -16,7 +16,10 @@ const studentSchema = new mongoose.Schema(
     guardianEmail: { type: String, lowercase: true },
     guardianRelation: { type: String, default: 'Parent' },
     parentUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    // Login account for the student themself (separate from the parent's
+    // login above). Lets a student log in and see their own dashboard,
+    // attendance, results and fee history.
+    studentUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
 
     currentClass: { type: String, required: true },
     section: { type: String, required: true },
@@ -40,13 +43,8 @@ const studentSchema = new mongoose.Schema(
 studentSchema.pre('save', async function generateStudentId(next) {
   if (this.studentId) return next();
   const year = new Date().getFullYear();
-  let count = await mongoose.model('Student').countDocuments({ schoolId: this.schoolId });
-  let candidate = `STU-${year}-${String(count + 1).padStart(4, '0')}`;
-  while (await mongoose.model('Student').exists({ studentId: candidate })) {
-    count++;
-    candidate = `STU-${year}-${String(count + 1).padStart(4, '0')}`;
-  }
-  this.studentId = candidate;
+  const count = await mongoose.model('Student').countDocuments({ schoolId: this.schoolId });
+  this.studentId = `STU-${year}-${String(count + 1).padStart(4, '0')}`;
   next();
 });
 

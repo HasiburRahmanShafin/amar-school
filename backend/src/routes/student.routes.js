@@ -19,4 +19,12 @@ router.patch('/:id', protect, authorize('school_admin', 'parent'), studentCtrl.u
 router.delete('/:id', protect, authorize('school_admin'), studentCtrl.deleteStudent);
 router.get('/:id/id-card', protect, authorize('school_admin'), studentCtrl.getIdCardData);
 
+// Login accounts (student + parent)
+router.post('/:id/logins', protect, authorize('school_admin'), studentCtrl.createStudentOrParentLogin);
+
+// Payment details shown on the student profile
+router.get('/:id/fees', protect, authorize('school_admin', 'teacher', 'parent', 'student'), studentCtrl.getStudentFees);
+router.post('/:id/fees', protect, authorize('school_admin'), studentCtrl.addStudentFee);
+router.patch('/:id/fees/:feeId', protect, authorize('school_admin'), studentCtrl.updateStudentFee);
+
 module.exports = router;

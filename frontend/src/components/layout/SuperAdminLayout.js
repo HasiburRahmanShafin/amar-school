@@ -9,7 +9,7 @@ export default function SuperAdminLayout({ children }) {
   const { isDark } = useAuth();
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-slate-950' : 'bg-purple-50'}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-slate-950' : 'bg-slate-50'}`}>
       <Header sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen((v) => !v)} />
       <Sidebar open={sidebarOpen} />
 

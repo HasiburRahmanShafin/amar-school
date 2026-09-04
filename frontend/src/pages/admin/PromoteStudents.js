@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { api } from '../../api/StudentApi';
 import BackButton from '../../components/BackButton';
-import DarkModeToggle, { useDarkMode } from '../../components/DarkModeToggle';
+import DarkModeToggle from '../../components/DarkModeToggle';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../components/Toast';
 
 export default function PromoteStudents() {
@@ -9,7 +10,7 @@ export default function PromoteStudents() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [isDark, toggleDark] = useDarkMode();
+  const { isDark, toggleTheme } = useAuth();
   const { showToast } = useToast();
 
   const handleSubmit = async (e) => {
@@ -29,13 +30,13 @@ export default function PromoteStudents() {
     }
   };
 
-  const pageBg = isDark ? 'bg-gray-900' : 'bg-blue-50';
-  const cardBg = isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-blue-100';
-  const heading = isDark ? 'text-gray-100' : 'text-blue-900';
-  const subText = isDark ? 'text-gray-400' : 'text-blue-500';
-  const label = isDark ? 'text-gray-300' : 'text-blue-900';
-  const inputClass = `w-full border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-    isDark ? 'bg-gray-900 border-gray-700 text-gray-100' : 'border-blue-200'
+  const pageBg = isDark ? 'bg-slate-950' : 'bg-slate-50';
+  const cardBg = isDark ? 'bg-slate-800/60 border-slate-700/60' : 'bg-white border-slate-200/80';
+  const heading = isDark ? 'text-white' : 'text-slate-800';
+  const subText = isDark ? 'text-slate-400' : 'text-indigo-500';
+  const label = isDark ? 'text-slate-300' : 'text-indigo-900';
+  const inputClass = `w-full border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+    isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'border-indigo-200'
   }`;
 
   return (
@@ -43,7 +44,7 @@ export default function PromoteStudents() {
       <div className="max-w-md mx-auto">
         <div className="flex items-center justify-between mb-2">
           <BackButton />
-          <DarkModeToggle isDark={isDark} toggleDark={toggleDark} />
+          <DarkModeToggle isDark={isDark} toggleDark={toggleTheme} />
         </div>
 
         <div className={`border rounded-xl shadow-sm p-8 ${cardBg}`}>
@@ -52,7 +53,7 @@ export default function PromoteStudents() {
 
           {error && <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">{error}</div>}
           {result !== null && (
-            <div className={`text-sm px-4 py-3 rounded-lg mb-4 ${isDark ? 'bg-blue-900 text-blue-300' : 'bg-blue-50 text-blue-700'}`}>
+            <div className={`text-sm px-4 py-3 rounded-lg mb-4 ${isDark ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-50 text-indigo-700'}`}>
               {result} student{result === 1 ? '' : 's'} promoted successfully.
             </div>
           )}
@@ -81,7 +82,7 @@ export default function PromoteStudents() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-blue-700 text-white font-medium py-3 rounded-lg hover:bg-blue-800 disabled:opacity-50 transition-all duration-200 hover:shadow-md"
+              className="w-full bg-indigo-700 text-white font-medium py-3 rounded-lg hover:bg-indigo-800 disabled:opacity-50 transition-all duration-200 hover:shadow-md"
             >
               {submitting ? 'Promoting…' : 'Promote all students'}
             </button>

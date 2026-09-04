@@ -74,15 +74,6 @@ const notifyStudentsOfPublishedResults = async (sheets, schoolId) => {
   );
 };
 
-// Class/section values are free-typed separately in Teacher Management
-// (assignedClasses) and Student Management (currentClass/section), so a
-// stray space or casing difference ("Class 6" saved for a teacher vs "class
-// 6" for a student) would otherwise make Student.find() silently match zero
-// students. Building a case-insensitive, trimmed exact-match regex avoids
-// that without changing how the values are stored or displayed.
-const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const exactCaseInsensitive = (value) => new RegExp(`^${escapeRegex(String(value).trim())}$`, 'i');
-
 // @route GET /api/results/teacher/classes
 // @access Protected - teacher, school_admin
 exports.getTeacherClasses = async (req, res, next) => {
@@ -166,13 +157,13 @@ exports.getMarkEntrySheet = async (req, res, next) => {
     const passMarks = matchedSlot?.passMarks || 33;
 
     // 2. Fetch all active enrolled students in this class and section
-        const studentFilter = {
+    const studentFilter = {
       schoolId,
-      currentClass: exactCaseInsensitive(className),
+      currentClass: className,
       status: 'active',
     };
     if (section && section !== 'All') {
-      studentFilter.section = exactCaseInsensitive(section);
+      studentFilter.section = section;
     }
 
     const students = await Student.find(studentFilter).sort({ rollNumber: 1, name: 1 });
@@ -384,13 +375,9 @@ exports.saveMarkEntrySheet = async (req, res, next) => {
         section: section || 'All',
         subject,
       },
-      { $set: sheetData },
-      { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true }
+      sheetData,
+      { new: true, upsert: true, runValidators: true }
     );
-
-    if (isPublishing) {
-      await notifyStudentsOfPublishedResults(updatedSheet, schoolId);
-    }
 
     res.json({
       success: true,
@@ -589,9 +576,8 @@ exports.getStudentResults = async (req, res, next) => {
       const studentProfile = await Student.findOne({
         schoolId,
         $or: [
-          { parentUserId: req.user.id },
-          ...(req.user.id ? [{ userId: req.user.id }] : []),
           ...(req.user.email ? [{ guardianEmail: req.user.email }] : []),
+          { parentUserId: req.user.id },
           ...(studentId ? [{ studentId }] : []),
         ],
       });
@@ -868,7 +854,7 @@ exports.getReportCardData = async (req, res, next) => {
           percentage: overallResult.percentage,
           overallGPA: overallResult.overallGPA,
           overallGrade: overallResult.overallGrade,
-          classRank: myRankItem?.classRank ?? null,
+          classRank: myRankItem?.classRank || 1,
           totalStudentsInClass: ranked.length,
           averageAttendance,
           passedSubjectsCount: overallResult.passedSubjectsCount,

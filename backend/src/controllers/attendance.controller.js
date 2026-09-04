@@ -1,5 +1,94 @@
 const Attendance = require('../models/Attendance');
 const Student = require('../models/Student');
+const Notification = require('../models/Notification');
+const { sendEmail } = require('../services/email.service');
+
+// Every time a student's absence count hits a multiple of this number
+// (5, 10, 15, ...) within the calendar/academic year, their guardian gets
+// an email alert. Using "multiple of" rather than "at least" keeps it from
+// re-firing on every single absence once the student has crossed 5.
+const ABSENCE_ALERT_THRESHOLD = 5;
+
+// Best-effort - checks each newly-marked-absent student's running absence
+// total for the year and emails the guardian once that total lands on a
+// threshold multiple. Never throws: a failed alert must never block the
+// attendance-marking request that triggered it (see email.service.js).
+const checkAndSendAbsenceAlerts = async (schoolId, records, targetDate) => {
+  const absentStudentIds = records.filter((r) => r.studentId && r.status === 'absent').map((r) => r.studentId);
+  if (!absentStudentIds.length) return;
+
+  try {
+    const students = await Student.find({ _id: { $in: absentStudentIds }, schoolId }).select(
+      'name guardianName guardianEmail currentClass section parentUserId studentUserId'
+    );
+    const studentById = new Map(students.map((s) => [s._id.toString(), s]));
+
+    const yearStart = new Date(targetDate.getFullYear(), 0, 1);
+    const yearEnd = new Date(targetDate.getFullYear() + 1, 0, 1);
+
+    await Promise.all(
+      absentStudentIds.map(async (studentId) => {
+        const student = studentById.get(studentId.toString());
+        if (!student) return;
+
+        const absentCount = await Attendance.countDocuments({
+          schoolId,
+          studentId,
+          status: 'absent',
+          date: { $gte: yearStart, $lt: yearEnd },
+        });
+
+        if (absentCount === 0 || absentCount % ABSENCE_ALERT_THRESHOLD !== 0) return;
+
+        const title = `Attendance Alert: ${absentCount} absences`;
+        const message = `${student.name} (Class ${student.currentClass}-${student.section}) has now been ` +
+          `absent ${absentCount} times this academic year.`;
+
+        // In-app notification (bell icon) for the parent's dashboard, and
+        // for the student's own dashboard too if they have a login.
+        const notificationTargets = [
+          student.parentUserId && { userId: student.parentUserId, link: '/parent/child-profile' },
+          student.studentUserId && { userId: student.studentUserId, link: '/student/dashboard' },
+        ].filter(Boolean);
+
+        await Promise.all(
+          notificationTargets.map(({ userId, link }) =>
+            Notification.create({
+              schoolId,
+              userId,
+              type: 'attendance_alert',
+              title,
+              message,
+              link,
+              dedupeKey: `attendance_alert:${studentId}:${userId}:${targetDate.getFullYear()}:${absentCount}`,
+            }).catch((err) => {
+              if (err.code !== 11000) console.error('Notification create failed:', err.message);
+            })
+          )
+        );
+
+        if (!student.guardianEmail) return;
+
+        await sendEmail({
+          to: student.guardianEmail,
+          subject: title,
+          html: `<p>Dear ${student.guardianName || 'Guardian'},</p>` +
+            `<p>This is to inform you that <strong>${student.name}</strong> ` +
+            `(Class ${student.currentClass}-${student.section}) has now been marked ` +
+            `<strong>absent ${absentCount} times</strong> this academic year.</p>` +
+            `<p>Please reach out to the school if there is anything we can help with, ` +
+            `or ensure your child attends class regularly going forward.</p>` +
+            `<p>Regards,<br/>School Administration</p>`,
+          category: 'attendance_absence_alert',
+          school: schoolId,
+          dedupeKey: `attendance_absence_alert:${studentId}:${targetDate.getFullYear()}:${absentCount}`,
+        });
+      })
+    );
+  } catch (error) {
+    console.error('Absence alert check failed:', error.message);
+  }
+};
  
 // @route GET /api/attendance/class?class=&section=&date=
 // @access Protected - school_admin, teacher
@@ -95,6 +184,11 @@ exports.markAttendance = async (req, res) => {
     }
  
     await Attendance.bulkWrite(ops);
+
+    // Fire-and-forget: don't delay the response on email delivery, but do
+    // let any synchronous errors surface to the logs via the helper's own
+    // try/catch.
+    checkAndSendAbsenceAlerts(req.schoolId, records, targetDate);
  
     res.json({ success: true, message: `Attendance saved for ${ops.length} student(s)` });
   } catch (error) {

@@ -140,7 +140,7 @@ export default function StudentResults() {
         <div className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full">
           
           {/* Top Banner */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-700 via-purple-700 to-purple-900 p-6 sm:p-8 text-white shadow-xl">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-700 to-slate-900 dark:from-slate-800 dark:to-slate-950 p-6 sm:p-8 text-white shadow-xl">
             <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <span className="inline-block px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-semibold uppercase tracking-wider mb-2 border border-white/20">
@@ -149,7 +149,7 @@ export default function StudentResults() {
                 <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
                   Official Academic Transcripts & Progress
                 </h1>
-                <p className="text-indigo-100 text-sm mt-1 max-w-xl">
+                <p className="text-slate-300 text-sm mt-1 max-w-xl">
                   View instant verified subject-wise marks, calculated GPA-5, class rank, and printable official report cards.
                 </p>
               </div>
@@ -160,7 +160,7 @@ export default function StudentResults() {
                 <span>Live Sync · {lastUpdated.toLocaleTimeString()}</span>
               </div>
             </div>
-            <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/30 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
           </div>
 
           {/* Student & Term Selector Controls */}
