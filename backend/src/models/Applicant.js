@@ -12,7 +12,12 @@ const applicantSchema = new mongoose.Schema(
     guardianEmail: { type: String, required: true, lowercase: true },
     address: { type: String, required: true },
     previousSchool: { type: String },
-    documents: [{ type: String }],
+
+    // Document uploads (Uploadcare CDN URLs)
+    photoUrl: { type: String, required: true },
+    birthCertificateUrl: { type: String, required: true },
+    reportCardUrl: { type: String }, // optional only for Class 1 applicants
+
     status: { type: String, enum: ['pending', 'reviewed', 'approved', 'rejected'], default: 'pending' },
     reviewNote: { type: String },
     resultPublished: { type: Boolean, default: false },
