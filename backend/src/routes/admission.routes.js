@@ -4,6 +4,10 @@ const protect = require('../middleware/auth.middleware');
 const circularCtrl = require('../controllers/AdmissionCircular.controller');
 const applicantCtrl = require('../controllers/application.controller');
 
+// TEMP DEBUG - remove after we find the undefined handler
+//console.log('circularCtrl keys:', Object.keys(circularCtrl));
+// console.log('applicantCtrl keys:', Object.keys(applicantCtrl));
+
 const authorize = (...roles) => (req, res, next) => {
   if (!req.user || !roles.includes(req.user.role)) {
     return res.status(403).json({ success: false, message: 'Access denied' });
