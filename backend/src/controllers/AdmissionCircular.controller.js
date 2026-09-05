@@ -20,15 +20,18 @@ exports.createCircular = async (req, res) => {
 exports.getCirculars = async (req, res) => {
   try {
     const filter = {};
+    const isAdmin = req.user && req.user.role === 'school_admin';
+
     if (req.query.subdomain) {
       const school = await School.findOne({ subdomain: req.query.subdomain });
       if (!school) return res.status(404).json({ success: false, message: 'School not found' });
       filter.schoolId = school._id;
     } else if (req.query.schoolId) {
       filter.schoolId = req.query.schoolId;
+    } else if (isAdmin) {
+      filter.schoolId = req.user.schoolId;
     }
 
-    const isAdmin = req.user && req.user.role === 'school_admin';
     if (!isAdmin) filter.status = 'published';
 
     const circulars = await AdmissionCircular.find(filter).sort({ createdAt: -1 }).lean();
