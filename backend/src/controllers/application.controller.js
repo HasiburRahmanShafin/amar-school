@@ -2,10 +2,8 @@ const Applicant = require('../models/Applicant');
 const AdmissionCircular = require('../models/AdmissionCircular');
 const User = require('../models/User');
 const { sendEmail } = require('../services/email.service');
+const { storeApplicationDocuments } = require('../services/uploadcare.service');
 
-// Best-effort - notifies every active school_admin for the circular's
-// school that a new application came in. Failures are logged but never
-// block the response (see email.service.js).
 const notifyAdminsOfNewApplication = async (applicant, circular) => {
   const admins = await User.find({
     school: applicant.schoolId,
@@ -45,8 +43,8 @@ exports.submitApplication = async (req, res) => {
       guardianName, guardianPhone, guardianEmail, address, previousSchool, documents,
     });
 
-    // Confirmation to the guardian + heads-up to the school's admins.
-    // Best-effort: neither failure should affect the 201 response below.
+    await storeApplicationDocuments(applicant.documents);
+
     await sendEmail({
       to: applicant.guardianEmail,
       subject: `Application received - ${circular.title}`,
