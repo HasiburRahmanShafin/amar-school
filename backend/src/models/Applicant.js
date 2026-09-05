@@ -12,7 +12,16 @@ const applicantSchema = new mongoose.Schema(
     guardianEmail: { type: String, required: true, lowercase: true },
     address: { type: String, required: true },
     previousSchool: { type: String },
-    documents: [{ type: String }],
+    // Each document is a labeled Uploadcare CDN URL, e.g.
+    // { label: 'Birth Certificate', url: 'https://ucarecdn.com/<uuid>/' }
+    // Kept as a flexible array (rather than fixed fields) so new document
+    // types can be added later without a schema migration.
+    documents: [
+      {
+        label: { type: String, required: true, trim: true },
+        url: { type: String, required: true },
+      },
+    ],
     status: { type: String, enum: ['pending', 'reviewed', 'approved', 'rejected'], default: 'pending' },
     reviewNote: { type: String },
     resultPublished: { type: Boolean, default: false },
