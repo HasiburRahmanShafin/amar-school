@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { admissionApi } from '../../api/admissionApi';
-import uploadToUploadcare from '../../utils/uploadcare';
+import uploadToUploadcare from '../../utils/uploadToUploadcare';
 
 const emptyForm = {
   studentName: '', dateOfBirth: '', gender: 'male',
@@ -18,6 +18,31 @@ export default function ApplyForm() {
   const [uploadStage, setUploadStage] = useState('');
   const [error, setError] = useState('');
 
+  // circular.classOrGrade holds a value like "Class 1" (matches AdmissionCircular model)
+  const [circularClass, setCircularClass] = useState('');
+  const [circularLoading, setCircularLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    admissionApi
+      .get(`/admissions/circulars/${circularId}`)
+      .then((res) => {
+        if (!isMounted) return;
+        setCircularClass(res.data?.data?.classOrGrade || res.data?.classOrGrade || '');
+      })
+      .catch((err) => {
+        console.error('Failed to load circular details:', err);
+      })
+      .finally(() => {
+        if (isMounted) setCircularLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [circularId]);
+
+  const isClassOne = circularClass === 'Class 1';
+
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
   const handleFileChange = (e) => {
     setFiles((prev) => ({ ...prev, [e.target.name]: e.target.files[0] }));
@@ -31,6 +56,9 @@ export default function ApplyForm() {
     try {
       if (!files.photo || !files.birthCertificate) {
         throw new Error('Applicant photo and birth certificate are required.');
+      }
+      if (!isClassOne && !files.reportCard) {
+        throw new Error('Previous year report card is required (not required for Class 1).');
       }
 
       setUploadStage('Uploading photo…');
@@ -133,16 +161,21 @@ export default function ApplyForm() {
             <label className="block text-sm font-medium text-blue-900 mb-1">Birth certificate</label>
             <input type="file" name="birthCertificate" accept="image/*,.pdf" required onChange={handleFileChange} className={fileInputClass} />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-blue-900 mb-1">
-              Previous year report card <span className="text-gray-400 font-normal">(not required for Class 1)</span>
-            </label>
-            <input type="file" name="reportCard" accept="image/*,.pdf" onChange={handleFileChange} className={fileInputClass} />
-          </div>
+          {!circularLoading && !isClassOne && (
+            <div>
+              <label className="block text-sm font-medium text-blue-900 mb-1">
+                Previous year report card
+              </label>
+              <input type="file" name="reportCard" accept="image/*,.pdf" required onChange={handleFileChange} className={fileInputClass} />
+            </div>
+          )}
+          {!circularLoading && isClassOne && (
+            <p className="text-sm text-gray-400">Report card not required for Class 1 applicants.</p>
+          )}
 
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || circularLoading}
             className="w-full bg-blue-700 text-white font-medium py-3 rounded-lg hover:bg-blue-800 disabled:opacity-50"
           >
             {submitting ? (uploadStage || 'Submitting…') : 'Submit application'}
