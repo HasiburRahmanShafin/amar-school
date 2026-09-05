@@ -53,7 +53,7 @@ const NAV_ITEMS = {
     { label: 'Dashboard',        to: '/teacher/dashboard',    icon: 'dashboard'  },
     { label: 'Attendance',       to: '/teacher/attendance',   icon: 'attendance' },
     { label: 'Mark Entry Sheet', to: '/teacher/marks',        icon: 'marks'      },
-    { label: 'Exam Routine',     to: '/student/exam-routine', icon: 'exam'       },
+    { label: 'Exam Routine',     to: '/teacher/exam-routine', icon: 'exam'       },
     { label: 'My Profile',       to: '/teacher/profile',      icon: 'profile'    },
   ],
   student: [
